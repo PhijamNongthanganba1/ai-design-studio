@@ -1,5 +1,21 @@
-// Demo mode - no database required
-// Users are verified client-side only
+const { MongoClient } = require('mongodb');
+const crypto = require('crypto');
+
+// MongoDB connection
+let cachedDb = null;
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://aidesign:AiDesign123!@ai-design-studio.c8bllig.mongodb.net/?appName=ai-design-studio';
+
+async function connectToDatabase() {
+    if (cachedDb) return cachedDb;
+
+    const client = await MongoClient.connect(MONGODB_URI);
+    cachedDb = client.db('ai-design-studio');
+    return cachedDb;
+}
+
+function hashPassword(password) {
+    return crypto.createHash('sha256').update(password).digest('hex');
+}
 
 module.exports = async (req, res) => {
     // Enable CORS
@@ -15,22 +31,43 @@ module.exports = async (req, res) => {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { email, password, name } = req.body;
+    try {
+        const { email, password, name } = req.body;
 
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Missing email or password' });
-    }
+        if (!email || !password) {
+            return res.status(400).json({ error: 'Missing email or password' });
+        }
 
-    // Demo mode: Accept all signups
-    // Real user data is stored in browser localStorage
-    res.status(200).json({
-        success: true,
-        message: 'Account created! (Demo Mode)',
-        user: {
+        const db = await connectToDatabase();
+        const users = db.collection('users');
+
+        // Check if user exists
+        const existingUser = await users.findOne({ email: email.toLowerCase() });
+        if (existingUser) {
+            return res.status(409).json({ error: 'Email already exists' });
+        }
+
+        // Create new user
+        const hashedPassword = hashPassword(password);
+        await users.insertOne({
             email: email.toLowerCase(),
+            password: hashedPassword,
             name: name || 'User',
-            plan: 'free'
-        },
-        demo: true
-    });
+            plan: 'free',
+            createdAt: new Date()
+        });
+
+        res.status(200).json({
+            success: true,
+            message: 'User created successfully!',
+            user: {
+                email: email.toLowerCase(),
+                name: name || 'User',
+                plan: 'free'
+            }
+        });
+    } catch (error) {
+        console.error('Signup error:', error);
+        res.status(500).json({ error: 'Server error: ' + error.message });
+    }
 };
