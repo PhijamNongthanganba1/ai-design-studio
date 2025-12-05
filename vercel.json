@@ -1,21 +1,8 @@
 {
-    "version": 2,
-    "functions": {
-        "api/*.js": {
-            "runtime": "@vercel/node@3"
-        }
-    },
-    "routes": [
+    "rewrites": [
         {
-            "handle": "filesystem"
-        },
-        {
-            "src": "/api/(.*)",
-            "dest": "/api/$1.js"
-        },
-        {
-            "src": "/",
-            "dest": "/login.html"
+            "source": "/",
+            "destination": "/login.html"
         }
     ]
 }
