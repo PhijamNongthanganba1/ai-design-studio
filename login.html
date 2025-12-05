@@ -230,7 +230,7 @@
                     showAlert(data.error || 'Invalid email or password', 'error');
                 }
             } catch (error) {
-                showAlert('Cannot connect to server. Please run: python server.py', 'error');
+                showAlert('Connection error: ' + error.message, 'error');
                 console.error('Error:', error);
             }
         }
