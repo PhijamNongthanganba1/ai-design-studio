@@ -1,20 +1,5 @@
-const { MongoClient } = require('mongodb');
-const crypto = require('crypto');
-
-// MongoDB connection
-let cachedDb = null;
-
-async function connectToDatabase() {
-    if (cachedDb) return cachedDb;
-
-    const client = await MongoClient.connect(process.env.MONGODB_URI);
-    cachedDb = client.db('ai-design-studio');
-    return cachedDb;
-}
-
-function hashPassword(password) {
-    return crypto.createHash('sha256').update(password).digest('hex');
-}
+// Demo mode - no database required
+// Users are verified client-side only
 
 module.exports = async (req, res) => {
     // Enable CORS
@@ -30,36 +15,22 @@ module.exports = async (req, res) => {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    try {
-        const { email, password } = req.body;
+    const { email, password } = req.body;
 
-        if (!email || !password) {
-            return res.status(400).json({ error: 'Missing email or password' });
-        }
-
-        const db = await connectToDatabase();
-        const users = db.collection('users');
-
-        const hashedPassword = hashPassword(password);
-        const user = await users.findOne({
-            email: email.toLowerCase(),
-            password: hashedPassword
-        });
-
-        if (user) {
-            res.status(200).json({
-                success: true,
-                user: {
-                    email: user.email,
-                    name: user.name,
-                    plan: user.plan
-                }
-            });
-        } else {
-            res.status(401).json({ error: 'Invalid email or password' });
-        }
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ error: 'Server error' });
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Missing email or password' });
     }
+
+    // Demo mode: Accept all logins
+    // Real validation happens client-side with localStorage
+    res.status(200).json({
+        success: true,
+        user: {
+            email: email.toLowerCase(),
+            name: 'User',
+            plan: 'free'
+        },
+        demo: true,
+        message: 'Login successful (Demo Mode)'
+    });
 };
