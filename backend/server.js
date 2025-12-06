@@ -7,8 +7,43 @@ const crypto = require('crypto');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// In-memory user storage (for local testing - in production use MongoDB)
-const users = {};
+const fs = require('fs');
+const { MongoClient } = require('mongodb');
+
+// Load .env manually if dotenv is not available
+try {
+    const envConfig = fs.readFileSync(path.join(__dirname, '..', '.env'), 'utf8');
+    envConfig.split('\n').forEach(line => {
+        const [key, value] = line.split('=');
+        if (key && value) {
+            process.env[key.trim()] = value.trim();
+        }
+    });
+} catch (e) {
+    console.log('No .env file found or error reading it');
+}
+
+
+const MONGODB_URI = process.env.MONGODB_URI;
+
+let db;
+
+const users = {}; // Fallback in-memory storage
+
+async function connectToDb() {
+    if (db) return db;
+    try {
+        const client = await MongoClient.connect(MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
+        db = client.db('ai-design-studio');
+        console.log('✅ Connected to MongoDB');
+        return db;
+    } catch (err) {
+        console.error('❌ MongoDB connection error (using in-memory fallback):', err.message);
+        console.log('⚠️  Check your MongoDB Atlas IP Whitelist if this is unexpected.');
+    }
+}
+
+connectToDb();
 
 // Middleware
 app.use(cors());
@@ -33,59 +68,117 @@ function hashPassword(password) {
 // ============================================
 
 // Signup
-app.post('/api/signup', (req, res) => {
+app.post('/api/signup', async (req, res) => {
     const { email, password, name } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Missing email or password' });
     }
 
-    const emailLower = email.toLowerCase();
-    if (users[emailLower]) {
-        return res.status(409).json({ error: 'Email already exists' });
-    }
-
-    users[emailLower] = {
-        email: emailLower,
-        password: hashPassword(password),
-        name: name || 'User',
-        plan: 'free',
-        createdAt: new Date().toISOString()
-    };
-
-    res.json({
-        success: true,
-        message: 'User created successfully!',
-        user: {
+    try {
+        const emailLower = email.toLowerCase();
+        const hashedPassword = hashPassword(password);
+        const newUser = {
             email: emailLower,
+            password: hashedPassword,
             name: name || 'User',
-            plan: 'free'
+            plan: 'free',
+            createdAt: new Date().toISOString()
+        };
+
+        // Fallback to in-memory if DB is not connected
+        if (!db) {
+            if (users[emailLower]) {
+                return res.status(409).json({ error: 'Email already exists' });
+            }
+            users[emailLower] = newUser;
+            res.json({
+                success: true,
+                message: 'User created successfully! (In-Memory)',
+                user: {
+                    email: emailLower,
+                    name: newUser.name,
+                    plan: newUser.plan
+                }
+            });
+            return;
         }
-    });
+
+        const usersCollection = db.collection('users');
+        const existingUser = await usersCollection.findOne({ email: emailLower });
+
+        if (existingUser) {
+            return res.status(409).json({ error: 'Email already exists' });
+        }
+
+        await usersCollection.insertOne(newUser);
+
+        res.json({
+            success: true,
+            message: 'User created successfully!',
+            user: {
+                email: emailLower,
+                name: newUser.name,
+                plan: newUser.plan
+            }
+        });
+    } catch (error) {
+        console.error('Signup error:', error);
+        res.status(500).json({ error: 'Server error: ' + error.message });
+    }
 });
 
 // Login
-app.post('/api/login', (req, res) => {
+app.post('/api/login', async (req, res) => {
     const { email, password } = req.body;
 
     if (!email || !password) {
         return res.status(400).json({ error: 'Missing email or password' });
     }
 
-    const emailLower = email.toLowerCase();
-    const user = users[emailLower];
+    try {
+        const emailLower = email.toLowerCase();
+        const hashedPassword = hashPassword(password);
 
-    if (user && user.password === hashPassword(password)) {
-        res.json({
-            success: true,
-            user: {
-                email: user.email,
-                name: user.name,
-                plan: user.plan
+        // Fallback to in-memory
+        if (!db) {
+            const user = users[emailLower];
+            if (user && user.password === hashedPassword) {
+                res.json({
+                    success: true,
+                    user: {
+                        email: user.email,
+                        name: user.name,
+                        plan: user.plan
+                    }
+                });
+            } else {
+                res.status(401).json({ error: 'Invalid email or password' });
             }
+            return;
+        }
+
+        const usersCollection = db.collection('users');
+        const user = await usersCollection.findOne({
+            email: emailLower,
+            password: hashedPassword
         });
-    } else {
-        res.status(401).json({ error: 'Invalid email or password' });
+
+        if (user) {
+            res.json({
+                success: true,
+                user: {
+                    email: user.email,
+                    name: user.name,
+                    plan: user.plan
+                }
+            });
+        } else {
+            res.status(401).json({ error: 'Invalid email or password' });
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        res.status(500).json({ error: 'Server error' });
     }
 });
 
@@ -174,7 +267,7 @@ app.get('/api/health', (req, res) => {
         features: {
             auth: true,
             imageGeneration: true,
-            database: 'In-Memory'
+            database: db ? 'MongoDB' : 'In-Memory (Fallback)'
         },
         timestamp: new Date().toISOString()
     });

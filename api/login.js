@@ -3,7 +3,7 @@ const crypto = require('crypto');
 
 // MongoDB connection
 let cachedDb = null;
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://aidesign:AiDesign123!@ai-design-studio.c8bllig.mongodb.net/?appName=ai-design-studio';
+const MONGODB_URI = process.env.MONGODB_URI;
 
 async function connectToDatabase() {
     if (cachedDb) return cachedDb;
