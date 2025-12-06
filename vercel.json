@@ -4,5 +4,27 @@
             "memory": 128,
             "maxDuration": 10
         }
-    }
+    },
+    "rewrites": [
+        {
+            "source": "/",
+            "destination": "/login.html"
+        },
+        {
+            "source": "/login",
+            "destination": "/login.html"
+        },
+        {
+            "source": "/signup",
+            "destination": "/signup.html"
+        },
+        {
+            "source": "/dashboard",
+            "destination": "/dashboard.html"
+        },
+        {
+            "source": "/app",
+            "destination": "/ULTRA-AI-WORKING.html"
+        }
+    ]
 }
