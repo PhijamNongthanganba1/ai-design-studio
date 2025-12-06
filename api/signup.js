@@ -8,7 +8,13 @@ const MONGODB_URI = process.env.MONGODB_URI;
 async function connectToDatabase() {
     if (cachedDb) return cachedDb;
 
-    const client = await MongoClient.connect(MONGODB_URI);
+    if (!MONGODB_URI) {
+        throw new Error('MONGODB_URI environment variable is missing');
+    }
+
+    const client = await MongoClient.connect(MONGODB_URI, {
+        serverSelectionTimeoutMS: 5000 // Fail fast (5s) so we don't hit Vercel timeout
+    });
     cachedDb = client.db('ai-design-studio');
     return cachedDb;
 }
