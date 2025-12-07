@@ -111,6 +111,7 @@
 
         .card h3 i {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-size: 24px;
@@ -336,12 +337,12 @@
         }
 
         function goToApp() {
-            window.location.href = 'ULTRA-AI-WORKING.html';
+            window.location.href = 'studio.html';
         }
 
         function openDesign(id) {
             localStorage.setItem('loadDesignId', id);
-            window.location.href = 'ULTRA-AI-WORKING.html';
+            window.location.href = 'studio.html';
         }
 
         function logout() {

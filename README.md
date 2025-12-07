@@ -50,7 +50,7 @@ Test these pages:
 - `/` - Login page
 - `/signup.html` - Signup page
 - `/dashboard.html` - Dashboard
-- `/ULTRA-AI-WORKING.html` - AI Design Studio
+- `/studio.html` - AI Design Studio
 - `/api/health` - Health check
 
 ## Project Structure
@@ -62,7 +62,7 @@ scarlet-gemini/
 │   ├── signup.js         # Registration API
 │   ├── generate-image.js # AI Image Generation
 │   └── health.js         # Health check
-├── ULTRA-AI-WORKING.html # Main AI Studio
+├── studio.html           # Main AI Studio
 ├── dashboard.html        # User Dashboard
 ├── login.html            # Login Page
 ├── signup.html           # Signup Page
