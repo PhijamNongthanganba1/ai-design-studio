@@ -31,8 +31,8 @@ if (!uri) {
     process.exit(1);
 }
 
-if (uri.includes('YOUR_PASSWORD_HERE')) {
-    console.error('❌ Error: Default placeholder "YOUR_PASSWORD_HERE" found.');
+if (uri.includes('nongthang123')) {
+    console.error('❌ Error: Default placeholder "password err" found.');
     console.error('👉 Please open .env and replace it with your actual password.');
     process.exit(1);
 }
