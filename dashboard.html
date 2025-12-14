@@ -294,20 +294,8 @@
 
         // Load user data
         window.addEventListener('DOMContentLoaded', () => {
-            const currentUser = localStorage.getItem('currentUser');
-            let user = null;
-
-            try {
-                user = JSON.parse(localStorage.getItem('userData'));
-            } catch (e) {
-                console.error("Error parsing user data", e);
-            }
-
-            // Fallback: check legacy 'users' object if userData is missing or doesn't match
-            if (!user || user.email !== currentUser) {
-                const users = JSON.parse(localStorage.getItem('users') || '{}');
-                user = users[currentUser];
-            }
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            const user = users[currentUser];
 
             if (user) {
                 document.getElementById('userName').textContent = user.name;
