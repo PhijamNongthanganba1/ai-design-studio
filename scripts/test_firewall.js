@@ -1,7 +1,7 @@
 const { MongoClient } = require('mongodb');
 
 // Use dummy password to test connectivity vs auth
-const uri = 'mongodb+srv://nongthanganbaphijam_db_useraidesign:WRONGPASS@nongaistudio.nsc1uvg.mongodb.net/?appName=Nongaistudio';
+const uri = 'mongodb+srv://nongthanganbaphijam_db_useraidesign:nongthang123@nongaistudio.nsc1uvg.mongodb.net/?appName=Nongaistudio';
 
 async function test() {
     console.log('Testing connectivity with dummy password...');
