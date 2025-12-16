@@ -1122,22 +1122,32 @@
                         alert('⚠️ Note: Using Mock Image (No API Key found).\nFor real AI, add HUGGINGFACE_API_KEY to your .env file.');
                     }
 
-                    fabric.Image.fromURL(data.image, (img) => {
-                        if (!img) {
-                            statusDiv.innerHTML = '❌ Failed to load image';
-                            return;
-                        }
+                    // Use native Image loader for better reliability with Redirects/CORS
+                    const imgObj = new Image();
+                    imgObj.crossOrigin = 'anonymous';
+                    imgObj.onload = function () {
+                        const img = new fabric.Image(imgObj);
                         statusDiv.innerHTML = ''; // Clear loading status
-                        img.scaleToWidth(Math.min(400, canvas.width * 0.5));
+
+                        // Scale logic
+                        const scale = Math.min(400 / img.width, (canvas.height * 0.5) / img.height);
+                        img.scale(scale);
+
                         img.set({
-                            left: canvas.width / 2 - img.getScaledWidth() / 2,
-                            top: canvas.height / 2 - img.getScaledHeight() / 2
+                            left: canvas.width / 2 - (img.width * scale) / 2,
+                            top: canvas.height / 2 - (img.height * scale) / 2
                         });
+
                         canvas.add(img).setActiveObject(img).renderAll();
                         saveState();
                         closeAIImageModal();
-                        statusDiv.innerHTML = '✅ Success!';
-                    }, { crossOrigin: 'anonymous' });
+                        statusDiv.innerHTML = '✅ Success! Image Added.';
+                    };
+                    imgObj.onerror = function () {
+                        statusDiv.innerHTML = '❌ Failed to load image (CORS/Network)';
+                    };
+                    // Add timestamp to prevent caching issues
+                    imgObj.src = data.image + "&t=" + new Date().getTime();
                 } else {
                     statusDiv.innerHTML = `❌ Error: ${data.error}`;
                 }
