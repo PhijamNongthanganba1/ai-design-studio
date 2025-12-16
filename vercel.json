@@ -1,0 +1,35 @@
+{
+    "outputDirectory": ".",
+    "functions": {
+        "api/*.js": {
+            "memory": 128,
+            "maxDuration": 10
+        }
+    },
+    "rewrites": [
+        {
+            "source": "/",
+            "destination": "/login.html"
+        },
+        {
+            "source": "/login",
+            "destination": "/login.html"
+        },
+        {
+            "source": "/signup",
+            "destination": "/signup.html"
+        },
+        {
+            "source": "/dashboard",
+            "destination": "/dashboard.html"
+        },
+        {
+            "source": "/app",
+            "destination": "/studio.html"
+        },
+        {
+            "source": "/api/:match*",
+            "destination": "/api/:match*"
+        }
+    ]
+}

@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 ULTRA AI Design Studio Pro - Complete Edition</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #7c3aed;
+            --primary-dark: #6d28d9;
+            --secondary: #10b981;
+            --danger: #dc2626;
+            --dark-bg: #1a1a2e;
+            --card-bg: #16213e;
+            --border: #0f1620;
+            --text: #fff;
+            --text-muted: #8e9caf;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--dark-bg);
+            color: var(--text);
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .app {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        .toolbar {
+            background: var(--card-bg);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-right: 20px;
+        }
+
+        .btn {
+            background: #2c3e50;
+            border: none;
+            color: var(--text);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: #34495e;
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        }
+
+        .main {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        .sidebar-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--border);
+            overflow-x: auto;
+        }
+
+        .sidebar-tab {
+            flex: 1;
+            min-width: 60px;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 15px 10px;
+            cursor: pointer;
+            font-size: 18px;
+            transition: all 0.3s;
+            text-align: center;
+            position: relative;
+        }
+
+        .sidebar-tab.active {
+            color: var(--primary);
+            background: var(--dark-bg);
+            box-shadow: inset 0 -3px 0 var(--primary);
+        }
+
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .canvas-area {
+            flex: 1;
+            background: #0f1620;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: auto;
+        }
+
+        .canvas-wrapper {
+            background: #fff;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border-radius: 4px;
+        }
+
+        .properties {
+            width: 320px;
+            background: var(--card-bg);
+            border-left: 1px solid var(--border);
+            padding: 20px;
+            overflow-y: auto;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .template-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .template-card {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border-radius: 12px;
+            padding: 30px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .template-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--primary);
+        }
+
+        .template-card i {
+            font-size: 36px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            background: #2c3e50;
+            border: 2px solid #34495e;
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            margin-bottom: 12px;
+            transition: all 0.3s;
+            font-family: 'Inter', sans-serif;
+        }
+
+        input:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .property-label {
+            display: block;
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .ai-prompt {
+            background: #2c3e50;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            padding: 15px;
+            min-height: 100px;
+        }
+
+        .style-preset {
+            display: inline-block;
+            padding: 8px 16px;
+            margin: 5px;
+            background: #2c3e50;
+            border: 2px solid #34495e;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .style-preset.active {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--primary);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .divider {
+            width: 1px;
+            height: 24px;
+            background: var(--border);
+            margin: 0 10px;
+        }
+
+        .size-inputs {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .size-inputs input {
+            width: 80px;
+            margin: 0;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .badge-new {
+            background: linear-gradient(135deg, #ec4899 0%, #d946ef 100%);
+        }
+
+        .badge-pro {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--dark-bg);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #34495e;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* Drop Zone & Uploads */
+        .drop-zone {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            border: 3px dashed #34495e;
+            border-radius: 16px;
+            padding: 30px 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 20px;
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2) 0%, rgba(109, 40, 217, 0.2) 100%);
+            transform: scale(1.02);
+        }
+
+        .drop-zone:hover {
+            border-color: var(--primary);
+        }
+
+        .uploaded-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .upload-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            cursor: grab;
+            transition: transform 0.2s;
+            background: #2c3e50;
+            border: 1px solid var(--border);
+        }
+
+        .upload-item:hover {
+            transform: scale(1.05);
+            border-color: var(--primary);
+        }
+
+        .upload-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .delete-upload-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(220, 38, 38, 0.9);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+
+        .upload-item:hover .delete-upload-btn {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app">
+        <div class="toolbar">
+            <div class="logo"><i class="fas fa-wand-magic-sparkles"></i> ULTRA AI Studio</div>
+            <button class="btn" onclick="addText()"><i class="fas fa-font"></i> Text</button>
+            <button class="btn" onclick="addShape('rectangle')"><i class="fas fa-square"></i></button>
+            <button class="btn" onclick="addShape('circle')"><i class="fas fa-circle"></i></button>
+            <div class="divider"></div>
+            <button class="btn" onclick="deleteSelected()"><i class="fas fa-trash"></i></button>
+            <button class="btn" onclick="undo()"><i class="fas fa-undo"></i></button>
+            <button class="btn" onclick="redo()"><i class="fas fa-redo"></i></button>
+            <div class="divider"></div>
+            <div class="size-inputs">
+                <input type="number" id="canvasWidth" value="1080" placeholder="W">
+                <span>×</span>
+                <input type="number" id="canvasHeight" value="1080" placeholder="H">
+                <button class="btn" onclick="resizeCanvas()">Resize</button>
+            </div>
+            <div style="margin-left: auto;"></div>
+            <button class="btn" onclick="showSavedDesigns()"><i class="fas fa-folder-open"></i> Open</button>
+            <button class="btn" onclick="saveDesign()"><i class="fas fa-save"></i> Save</button>
+            <button class="btn btn-primary" onclick="showExportModal()"><i class="fas fa-download"></i> Export</button>
+        </div>
+        <div class="main">
+            <!-- Left Sidebar -->
+            <div class="sidebar">
+                <div class="sidebar-tabs">
+                    <button class="sidebar-tab active" onclick="showTab('templates')" title="Templates">
+                        <i class="fas fa-th-large"></i>
+                    </button>
+                    <button class="sidebar-tab" onclick="showTab('ai-studio')" title="AI Studio">
+                        <i class="fas fa-brain"></i>
+                        <span class="badge badge-new"
+                            style="position: absolute; top: 5px; right: 5px; font-size: 8px;">AI</span>
+                    </button>
+                    <button class="sidebar-tab" onclick="showTab('cv-builder')" title="CV Builder">
+                        <i class="fas fa-file-alt"></i>
+                    </button>
+                    <button class="sidebar-tab" onclick="showTab('elements')" title="Elements">
+                        <i class="fas fa-shapes"></i>
+                    </button>
+                    <button class="sidebar-tab" onclick="showTab('upload')" title="Upload">
+                        <i class="fas fa-upload"></i>
+                    </button>
+                </div>
+
+                <div class="sidebar-content">
+                    <!-- Templates Tab -->
+                    <div id="templates" class="tab-content active">
+                        <div class="section-title">📱 Social Media</div>
+                        <div class="template-grid">
+                            <div class="template-card" onclick="loadTemplate('instagram-post')">
+                                <i class="fab fa-instagram"></i>
+                                <div>Instagram Post</div>
+                                <small>1080 × 1080</small>
+                            </div>
+                            <div class="template-card" onclick="loadTemplate('instagram-story')">
+                                <i class="fas fa-mobile-alt"></i>
+                                <div>IG Story</div>
+                                <small>1080 × 1920</small>
+                            </div>
+                        </div>
+                        <div class="section-title">📄 Marketing</div>
+                        <div class="template-grid">
+                            <div class="template-card" onclick="loadTemplate('poster')">
+                                <i class="fas fa-file-alt"></i>
+                                <div>Poster</div>
+                                <small>A4</small>
+                            </div>
+                            <div class="template-card" onclick="loadTemplate('flyer')">
+                                <i class="fas fa-newspaper"></i>
+                                <div>Flyer</div>
+                                <small>Letter</small>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- AI Studio Tab -->
+                    <div id="ai-studio" class="tab-content">
+                        <div class="section-title">🎨 AI Image Generator <span class="badge badge-new">NEW</span></div>
+                        <button class="btn btn-primary" style="width: 100%; margin-bottom: 15px;"
+                            onclick="showAIImageModal()">
+                            <i class="fas fa-magic"></i> Generate AI Image
+                        </button>
+                        <div class="section-title">🖼️ Image Tools</div>
+                        <button class="btn btn-success" style="width: 100%; margin-bottom: 10px;"
+                            onclick="removeBackground()">
+                            <i class="fas fa-cut"></i> Remove Background
+                        </button>
+                        <button class="btn btn-success" style="width: 100%; margin-bottom: 10px;"
+                            onclick="upscaleImage()">
+                            <i class="fas fa-expand-arrows-alt"></i> Upscale 4x
+                        </button>
+                        <button class="btn btn-success" style="width: 100%; margin-bottom: 10px;"
+                            onclick="removeObject()">
+                            <i class="fas fa-eraser"></i> Smart Erase
+                        </button>
+                        <div class="section-title">🎬 AI Video <span class="badge badge-pro">PRO</span></div>
+                        <button class="btn btn-primary" style="width: 100%; margin-bottom: 10px;"
+                            onclick="createAIVideo()">
+                            <i class="fas fa-video"></i> Create AI Video
+                        </button>
+                    </div>
+
+                    <!-- CV Builder Tab -->
+                    <div id="cv-builder" class="tab-content">
+                        <div class="section-title">📄 Resume Templates</div>
+                        <button class="btn btn-primary" style="width: 100%; margin-bottom: 15px;"
+                            onclick="showCVBuilder()">
+                            <i class="fas fa-file-contract"></i> Create New Resume
+                        </button>
+                        <div class="template-grid">
+                            <div class="template-card" onclick="loadCVTemplate('professional')">
+                                <i class="fas fa-briefcase"></i>
+                                <div>Professional</div>
+                                <small>ATS Friendly</small>
+                            </div>
+                            <div class="template-card" onclick="loadCVTemplate('creative')">
+                                <i class="fas fa-palette"></i>
+                                <div>Creative</div>
+                                <small>Designer</small>
+                            </div>
+                        </div>
+                        <div class="section-title">🤖 AI Writer</div>
+                        <button class="btn btn-success" style="width: 100%; margin-bottom: 10px;"
+                            onclick="aiWriteContent()">
+                            <i class="fas fa-robot"></i> AI Content Writer
+                        </button>
+                    </div>
+
+                    <!-- Elements Tab -->
+                    <div id="elements" class="tab-content">
+                        <div class="section-title">🔷 Shapes</div>
+                        <button class="btn" style="width: 100%; margin-bottom: 10px;" onclick="addShape('rectangle')">
+                            <i class="fas fa-square"></i> Rectangle
+                        </button>
+                        <button class="btn" style="width: 100%; margin-bottom: 10px;" onclick="addShape('circle')">
+                            <i class="fas fa-circle"></i> Circle
+                        </button>
+                    </div>
+
+                    <!-- Upload Tab -->
+                    <div id="upload" class="tab-content">
+                        <div class="section-title">📤 Upload Media</div>
+                        <div class="drop-zone" id="dropZone">
+                            <i class="fas fa-cloud-upload-alt" style="font-size: 24px; margin-bottom: 10px;"></i>
+                            <p>Drag & Drop files here</p>
+                            <p style="font-size: 12px; color: var(--text-muted);">or click to browse</p>
+                        </div>
+                        <input type="file" id="fileInput" accept="image/*,video/*" style="display: none;" multiple>
+                        <button class="btn btn-primary" id="uploadMediaBtn" style="width: 100%; margin-bottom: 15px;">
+                            <i class="fas fa-plus"></i> Select Files
+                        </button>
+                        <div class="section-title">Your Uploads</div>
+                        <div class="uploaded-grid" id="uploadsGrid"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="canvas-area">
+                <div class="canvas-wrapper">
+                    <canvas id="canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Properties Panel -->
+            <div class="properties">
+                <div class="section-title">⚙️ Properties</div>
+                <div id="propertiesPanel">
+                    <p style="color: var(--text-muted); text-align: center; margin-top: 50px;">
+                        <i class="fas fa-mouse-pointer"
+                            style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 15px;"></i>
+                        Select an object to edit
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- AI Image Generator Modal -->
+        <div id="aiImageModal" class="modal">
+            <div class="modal-content">
+                <h3><i class="fas fa-magic"></i> AI Image Generator</h3>
+                <div class="ai-input-group">
+                    <label class="property-label">Describe your image</label>
+                    <textarea id="aiPrompt" class="ai-prompt"
+                        placeholder="E.g., a beautiful sunset over mountains, digital art style, vibrant colors"></textarea>
+                </div>
+                <div class="ai-input-group">
+                    <label class="property-label">Style Preset</label>
+                    <div>
+                        <span class="style-preset active" data-style="enhance">✨ Enhance</span>
+                        <span class="style-preset" data-style="photographic">📷 Photo</span>
+                        <span class="style-preset" data-style="digital-art">🎨 Digital Art</span>
+                        <span class="style-preset" data-style="3d-model">🧊 3D Model</span>
+                        <span class="style-preset" data-style="anime">🎭 Anime</span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn" style="flex: 1;" onclick="closeAIImageModal()">Cancel</button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="generateAIImage()">
+                        <i class="fas fa-magic"></i> Generate
+                    </button>
+                </div>
+                <div id="aiImageStatus" style="margin-top: 15px; text-align: center; color: var(--text-muted);"></div>
+            </div>
+        </div>
+
+        <!-- Export Modal -->
+        <div id="exportModal" class="modal">
+            <div class="modal-content">
+                <h3><i class="fas fa-download"></i> Export Design</h3>
+                <label class="property-label">Format</label>
+                <select id="exportFormat" onchange="toggleJpgQuality()">
+                    <option value="png">PNG (High Quality)</option>
+                    <option value="jpeg">JPG (Smaller File)</option>
+                </select>
+                <label class="property-label">Export Size</label>
+                <select id="exportScale">
+                    <option value="1">1x - Original Size</option>
+                    <option value="2">2x - High Resolution</option>
+                    <option value="3">3x - Ultra HD</option>
+                </select>
+                <div id="jpgQualityDiv" style="display: none;">
+                    <label class="property-label">JPG Quality</label>
+                    <input type="range" id="jpgQuality" min="0.1" max="1" step="0.1" value="0.9"
+                        oninput="updateQualityLabel()">
+                    <div style="text-align: center; color: var(--text-muted); font-size: 12px; margin-bottom: 15px;">
+                        <span id="jpgQualityValue">90</span>%
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn" style="flex: 1;" onclick="closeExportModal()">Cancel</button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="confirmExport()">
+                        <i class="fas fa-download"></i> Download
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saved Designs Modal -->
+        <div id="savedModal" class="modal">
+            <div class="modal-content">
+                <h3><i class="fas fa-folder-open"></i> Your Saved Designs</h3>
+                <div id="savedDesignsList"></div>
+                <div style="margin-top: 20px;">
+                    <button class="btn btn-primary" style="width: 100%;" onclick="closeSavedModal()">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        const API_URL = '';  // Empty for relative paths (works both locally and on Vercel)
+        let canvas, history = [], historyStep = 0, currentDesignId = null;
+        let selectedStyle = 'enhance';
+
+        // Upload Manager Class
+        class UploadManager {
+            constructor(canvasManager) {
+                this.canvasManager = canvasManager;
+                this.uploads = [];
+                this.init();
+            }
+
+            init() {
+                this.dropZone = document.getElementById('dropZone');
+                this.fileInput = document.getElementById('fileInput');
+                this.uploadBtn = document.getElementById('uploadMediaBtn');
+                this.uploadsGrid = document.getElementById('uploadsGrid');
+
+                if (this.dropZone && this.fileInput && this.uploadBtn) {
+                    this.setupEventListeners();
+                    this.loadUploads();
+                }
+            }
+
+            setupEventListeners() {
+                // Drag and Drop
+                this.dropZone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    this.dropZone.classList.add('drag-over');
+                });
+
+                this.dropZone.addEventListener('dragleave', () => {
+                    this.dropZone.classList.remove('drag-over');
+                });
+
+                this.dropZone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    this.dropZone.classList.remove('drag-over');
+                    const files = e.dataTransfer.files;
+                    this.handleFiles(files);
+                });
+
+                // Click Upload
+                this.uploadBtn.addEventListener('click', () => {
+                    this.fileInput.click();
+                });
+
+                this.fileInput.addEventListener('change', (e) => {
+                    this.handleFiles(e.target.files);
+                });
+            }
+
+            handleFiles(files) {
+                Array.from(files).forEach(file => {
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = (e) => {
+                            this.addUpload(e.target.result, 'image');
+                        };
+                        reader.readAsDataURL(file);
+                    } else if (file.type.startsWith('video/')) {
+                        // Video handling placeholder
+                        console.log('Video upload not fully supported yet');
+                    }
+                });
+            }
+
+            addUpload(src, type) {
+                const upload = { id: Date.now(), src, type };
+                this.uploads.unshift(upload);
+                this.saveUploads();
+                this.renderUploads();
+            }
+
+            saveUploads() {
+                try {
+                    // Limit storage to avoid quota issues
+                    const uploadsToSave = this.uploads.slice(0, 20);
+                    localStorage.setItem('userUploads', JSON.stringify(uploadsToSave));
+                } catch (e) {
+                    console.error('Storage limit reached', e);
+                }
+            }
+
+            loadUploads() {
+                const saved = localStorage.getItem('userUploads');
+                if (saved) {
+                    this.uploads = JSON.parse(saved);
+                    this.renderUploads();
+                }
+            }
+
+            renderUploads() {
+                this.uploadsGrid.innerHTML = this.uploads.map(upload => `
+                    <div class="upload-item" draggable="true" ondragstart="dragStart(event, '${upload.src}', '${upload.type}')" onclick="addToCanvas('${upload.src}', '${upload.type}')">
+                        <img src="${upload.src}" alt="Upload">
+                        <button class="delete-upload-btn" onclick="deleteUpload(event, ${upload.id})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            deleteUpload(id) {
+                this.uploads = this.uploads.filter(u => u.id !== id);
+                this.saveUploads();
+                this.renderUploads();
+            }
+        }
+
+        // Global helpers for inline onclicks
+        let uploadManager;
+        function dragStart(e, src, type) {
+            e.dataTransfer.setData('text/plain', JSON.stringify({ src, type }));
+        }
+
+        function addToCanvas(src, type) {
+            if (type === 'image') {
+                canvasManager.addImage(src);
+            }
+        }
+
+        function deleteUpload(e, id) {
+            e.stopPropagation();
+            if (uploadManager) uploadManager.deleteUpload(id);
+        }
+
+        // Canvas Manager Adapter
+        const canvasManager = {
+            addImage: (url, options) => {
+                fabric.Image.fromURL(url, (img) => {
+                    if (options) {
+                        img.set(options);
+                    } else {
+                        img.scaleToWidth(Math.min(400, canvas.width * 0.5));
+                        img.set({
+                            left: canvas.width / 2 - img.getScaledWidth() / 2,
+                            top: canvas.height / 2 - img.getScaledHeight() / 2
+                        });
+                    }
+                    canvas.add(img).setActiveObject(img).renderAll();
+                    saveState();
+                });
+            }
+        };
+
+        // Initialize Canvas
+        window.addEventListener('DOMContentLoaded', () => {
+            canvas = new fabric.Canvas('canvas', {
+                width: 1080,
+                height: 1080,
+                backgroundColor: '#ffffff'
+            });
+            canvas.on('selection:created', updateProperties);
+            canvas.on('selection:updated', updateProperties);
+            canvas.on('selection:cleared', clearProperties);
+            canvas.on('object:modified', saveState);
+
+            // Drop on canvas
+            const canvasWrapper = document.querySelector('.canvas-wrapper');
+            canvasWrapper.addEventListener('dragover', (e) => e.preventDefault());
+            canvasWrapper.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const data = e.dataTransfer.getData('text/plain');
+                if (data) {
+                    try {
+                        const { src, type } = JSON.parse(data);
+                        addToCanvas(src, type);
+                    } catch (e) {
+                        // Handle file drop directly on canvas
+                        if (e.dataTransfer.files.length > 0) {
+                            uploadManager.handleFiles(e.dataTransfer.files);
+                        }
+                    }
+                }
+            });
+
+            saveState();
+
+            // Initialize Upload Manager
+            uploadManager = new UploadManager(canvasManager);
+
+            // Style preset selection
+            document.querySelectorAll('.style-preset').forEach(preset => {
+                preset.addEventListener('click', function () {
+                    document.querySelectorAll('.style-preset').forEach(p => p.classList.remove('active'));
+                    this.classList.add('active');
+                    selectedStyle = this.dataset.style;
+                });
+            });
+        });
+
+        // Basic Canvas Functions
+        function addText() {
+            const text = new fabric.IText('Click to edit', {
+                left: canvas.width / 2 - 100,
+                top: canvas.height / 2,
+                fontSize: 48,
+                fontFamily: 'Inter',
+                fontWeight: '700',
+                fill: '#000000'
+            });
+            canvas.add(text).setActiveObject(text).renderAll();
+            saveState();
+        }
+
+        function addShape(type) {
+            let shape;
+            if (type === 'rectangle') {
+                shape = new fabric.Rect({
+                    left: canvas.width / 2 - 100,
+                    top: canvas.height / 2 - 75,
+                    width: 200,
+                    height: 150,
+                    fill: '#7c3aed',
+                    rx: 10,
+                    ry: 10
+                });
+            } else if (type === 'circle') {
+                shape = new fabric.Circle({
+                    left: canvas.width / 2 - 75,
+                    top: canvas.height / 2 - 75,
+                    radius: 75,
+                    fill: '#10b981'
+                });
+            }
+            canvas.add(shape).setActiveObject(shape).renderAll();
+            saveState();
+        }
+
+        function deleteSelected() {
+            const active = canvas.getActiveObject();
+            if (active) {
+                canvas.remove(active).renderAll();
+                saveState();
+            }
+        }
+
+        function undo() {
+            if (historyStep > 0) {
+                historyStep--;
+                canvas.loadFromJSON(history[historyStep], () => canvas.renderAll());
+            }
+        }
+
+        function redo() {
+            if (historyStep < history.length - 1) {
+                historyStep++;
+                canvas.loadFromJSON(history[historyStep], () => canvas.renderAll());
+            }
+        }
+
+        function saveState() {
+            const json = JSON.stringify(canvas.toJSON());
+            history = history.slice(0, historyStep + 1);
+            history.push(json);
+            historyStep++;
+            if (history.length > 50) {
+                history.shift();
+                historyStep--;
+            }
+        }
+
+        function resizeCanvas() {
+            const w = parseInt(document.getElementById('canvasWidth').value);
+            const h = parseInt(document.getElementById('canvasHeight').value);
+            if (w > 0 && h > 0) {
+                canvas.setDimensions({ width: w, height: h });
+                canvas.renderAll();
+                saveState();
+            }
+        }
+
+        function loadTemplate(type) {
+            canvas.clear();
+            switch (type) {
+                case 'instagram-post':
+                    canvas.setDimensions({ width: 1080, height: 1080 });
+                    canvas.setBackgroundColor('#f093fb', canvas.renderAll.bind(canvas));
+                    break;
+                case 'instagram-story':
+                    canvas.setDimensions({ width: 1080, height: 1920 });
+                    canvas.setBackgroundColor('#667eea', canvas.renderAll.bind(canvas));
+                    break;
+                case 'poster':
+                    canvas.setDimensions({ width: 794, height: 1123 });
+                    canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
+                    break;
+                case 'flyer':
+                    canvas.setDimensions({ width: 816, height: 1056 });
+                    canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
+                    break;
+            }
+            document.getElementById('canvasWidth').value = canvas.width;
+            document.getElementById('canvasHeight').value = canvas.height;
+            saveState();
+        }
+
+        function loadCVTemplate(style) {
+            canvas.clear();
+            // A4 Size @ 96 DPI approx (794x1123)
+            canvas.setDimensions({ width: 794, height: 1123 });
+            canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
+
+            if (style === 'professional') {
+                // Header Background
+                const headerBg = new fabric.Rect({
+                    left: 0, top: 0, width: 794, height: 200,
+                    fill: '#2c3e50', selectable: false
+                });
+
+                // Name
+                const name = new fabric.IText('YOUR NAME', {
+                    left: 50, top: 60,
+                    fontSize: 40, fontFamily: 'Inter', fontWeight: 'bold', fill: '#ffffff'
+                });
+
+                // Title
+                const title = new fabric.IText('Professional Job Title', {
+                    left: 50, top: 110,
+                    fontSize: 24, fontFamily: 'Inter', fill: '#a0aec0'
+                });
+
+                // Contact Info
+                const contact = new fabric.IText('email@example.com | +123 456 7890 | city, country', {
+                    left: 50, top: 150,
+                    fontSize: 16, fontFamily: 'Inter', fill: '#cbd5e0'
+                });
+
+                // Section: Experience
+                const expHeader = new fabric.IText('EXPERIENCE', {
+                    left: 50, top: 250,
+                    fontSize: 20, fontFamily: 'Inter', fontWeight: 'bold', fill: '#2c3e50'
+                });
+                const expLine = new fabric.Rect({
+                    left: 50, top: 275, width: 694, height: 2, fill: '#2c3e50'
+                });
+
+                const expItem = new fabric.IText('Job Title | Company Name\n2020 - Present\n\n• Achieved X, Y, and Z results.\n• Led a team of 5 designers.\n• Improved efficiency by 20%.', {
+                    left: 50, top: 290,
+                    fontSize: 14, fontFamily: 'Inter', fill: '#4a5568', lineHeight: 1.5,
+                    width: 600, splitByGrapheme: true
+                });
+
+                // Section: Education
+                const eduHeader = new fabric.IText('EDUCATION', {
+                    left: 50, top: 500,
+                    fontSize: 20, fontFamily: 'Inter', fontWeight: 'bold', fill: '#2c3e50'
+                });
+                const eduLine = new fabric.Rect({
+                    left: 50, top: 525, width: 694, height: 2, fill: '#2c3e50'
+                });
+                const eduItem = new fabric.IText('Degree Name | University Name\n2016 - 2020\n\nGraduated with Honors.', {
+                    left: 50, top: 540,
+                    fontSize: 14, fontFamily: 'Inter', fill: '#4a5568', lineHeight: 1.5
+                });
+
+                canvas.add(headerBg, name, title, contact, expHeader, expLine, expItem, eduHeader, eduLine, eduItem);
+            } else {
+                // Creative Style (Modern Sidebar)
+                const sidebar = new fabric.Rect({
+                    left: 0, top: 0, width: 250, height: 1123,
+                    fill: '#f7fafc', selectable: false
+                });
+
+                const name = new fabric.IText('ALEX\nDESIGNER', {
+                    left: 300, top: 50,
+                    fontSize: 60, fontFamily: 'Inter', fontWeight: '900', fill: '#2d3748', lineHeight: 0.9
+                });
+
+                const aboutTitle = new fabric.IText('ABOUT ME', { left: 40, top: 50, fontSize: 18, fontWeight: 'bold', fill: '#2d3748' });
+                const aboutText = new fabric.IText('Creative designer with a passion\nfor visual storytelling.', {
+                    left: 40, top: 80, fontSize: 14, fill: '#4a5568', width: 200, splitByGrapheme: true
+                });
+
+                const skillTitle = new fabric.IText('SKILLS', { left: 40, top: 200, fontSize: 18, fontWeight: 'bold', fill: '#2d3748' });
+                const skillText = new fabric.IText('• Photoshop\n• Illustrator\n• UI/UX Design\n• Marketing', {
+                    left: 40, top: 230, fontSize: 14, fill: '#4a5568', width: 200, splitByGrapheme: true
+                });
+
+                canvas.add(sidebar, name, aboutTitle, aboutText, skillTitle, skillText);
+            }
+
+            saveState();
+            document.getElementById('canvasWidth').value = canvas.width;
+            document.getElementById('canvasHeight').value = canvas.height;
+        }
+
+        function showCVBuilder() {
+            showTab('cv-builder');
+            loadCVTemplate('professional');
+
+            // AI Features
+            function showAIImageModal() { document.getElementById('aiImageModal').style.display = 'flex'; }
+            function closeAIImageModal() { document.getElementById('aiImageModal').style.display = 'none'; document.getElementById('aiImageStatus').innerHTML = ''; }
+
+            async function generateAIImage() {
+                const prompt = document.getElementById('aiPrompt').value.trim();
+                if (!prompt) { alert('Please enter a description!'); return; }
+                const statusDiv = document.getElementById('aiImageStatus');
+                statusDiv.innerHTML = '<div class="loading"></div> Generating...';
+                try {
+                    const response = await fetch(`${API_URL}/api/generate-image`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt, style: selectedStyle, width: 1024, height: 1024 })
+                    });
+                    const data = await response.json();
+                    console.log('[AI Image] Response:', data);
+                    if (data.success) {
+                        fabric.Image.fromURL(data.image, (img) => {
+                            if (!img) {
+                                statusDiv.innerHTML = '❌ Failed to load image';
+                                return;
+                            }
+                            img.scaleToWidth(Math.min(400, canvas.width * 0.5));
+                            img.set({
+                                left: canvas.width / 2 - img.getScaledWidth() / 2,
+                                top: canvas.height / 2 - img.getScaledHeight() / 2
+                            });
+                            canvas.add(img).setActiveObject(img).renderAll();
+                            saveState();
+                            closeAIImageModal();
+                            statusDiv.innerHTML = '✅ Success!';
+                        }, { crossOrigin: 'anonymous' });
+                    } else {
+                        statusDiv.innerHTML = `❌ Error: ${data.error}`;
+                    }
+                } catch (error) {
+                    statusDiv.innerHTML = `❌ Failed to generate. Check backend.`;
+                    console.error(error);
+                }
+            }
+
+            // Other AI Placeholders
+            async function removeBackground() {
+                const active = canvas.getActiveObject();
+                if (!active || active.type !== 'image') {
+                    alert('⚠️ Please select an IMAGE first!');
+                    return;
+                }
+                const originalOpacity = active.opacity;
+                active.set('opacity', 0.5);
+                canvas.renderAll();
+                try {
+                    const dataUrl = active.toDataURL({ format: 'png' });
+                    const blob = await (await fetch(dataUrl)).blob();
+                    const formData = new FormData();
+                    formData.append('image', blob, 'image.png');
+                    const response = await fetch(`${API_URL}/api/remove-background`, {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    if (data.success) {
+                        fabric.Image.fromURL(data.image, (img) => {
+                            if (!img) {
+                                active.set('opacity', originalOpacity);
+                                canvas.renderAll();
+                                return;
+                            }
+                            img.set({
+                                left: active.left,
+                                top: active.top,
+                                scaleX: active.scaleX,
+                                scaleY: active.scaleY
+                            });
+                            canvas.remove(active);
+                            canvas.add(img).setActiveObject(img);
+                            canvas.renderAll();
+                            saveState();
+                            alert(data.isMock ? '✅ BG Removed (Mock)' : '✅ BG Removed!');
+                        });
+                    } else {
+                        active.set('opacity', originalOpacity);
+                        canvas.renderAll();
+                        alert('❌ Error');
+                    }
+                } catch (error) {
+                    active.set('opacity', originalOpacity);
+                    canvas.renderAll();
+                    alert('❌ Backend error');
+                }
+            }
+            async function upscaleImage() {
+                const active = canvas.getActiveObject();
+                if (!active || active.type !== 'image') {
+                    alert('⚠️ Please select an IMAGE first!');
+                    return;
+                }
+                if (confirm('Backend is removed. Mock upscale?')) {
+                    // allow user to just see an alert
+                    alert('✅ Upscaled 4x (Mock)!');
+                }
+            }
+            function removeObject() {
+                const active = canvas.getActiveObject();
+                if (!active || active.type !== 'image') {
+                    alert('⚠️ Please select an IMAGE first!');
+                    return;
+                }
+                alert('🔧 Smart Erase\n\nComing soon! Will use Stability AI Inpainting.');
+            }
+            async function createAIVideo() {
+                alert('⚠️ AI Video generation requires a backend server.');
+            }
+
+            // Resume Builder Implementation
+            const resumeTemplates = {
+                professional: () => {
+                    canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
+                    // Header
+                    const name = new fabric.IText('JOHN DOE', { left: 50, top: 50, fontSize: 40, fontFamily: 'Inter', fontWeight: '800', fill: '#2c3e50' });
+                    const title = new fabric.IText('Software Engineer', { left: 50, top: 100, fontSize: 24, fontFamily: 'Inter', fill: '#7c3aed' });
+                    const line = new fabric.Rect({ left: 50, top: 140, width: 700, height: 3, fill: '#2c3e50' });
+
+                    // Left Column (Contact & Skills)
+                    const contactHeader = new fabric.IText('CONTACT', { left: 50, top: 180, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#2c3e50' });
+                    const contactInfo = new fabric.IText('john@example.com\n(123) 456-7890\nNew York, NY\nlinkedin.com/in/johndoe', { left: 50, top: 210, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#4b5563' });
+
+                    const skillsHeader = new fabric.IText('SKILLS', { left: 50, top: 350, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#2c3e50' });
+                    const skillsInfo = new fabric.IText('• JavaScript (React, Node)\n• Python (Django, Flask)\n• UI/UX Design\n• Agile Methodology', { left: 50, top: 380, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#4b5563' });
+
+                    // Right Column (Experience)
+                    const expHeader = new fabric.IText('EXPERIENCE', { left: 300, top: 180, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#2c3e50' });
+
+                    const role1 = new fabric.IText('Senior Developer | Tech Co.', { left: 300, top: 210, fontSize: 16, fontFamily: 'Inter', fontWeight: '600', fill: '#000' });
+                    const date1 = new fabric.IText('2020 - Present', { left: 300, top: 235, fontSize: 12, fontFamily: 'Inter', fill: '#6b7280' });
+                    const desc1 = new fabric.IText('• Led a team of 5 developers to build a SaaS platform.\n• Improved system performance by 40%.\n• Implemented CI/CD pipelines.', { left: 300, top: 260, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.5, fill: '#4b5563', width: 450, splitByGrapheme: true });
+
+                    const role2 = new fabric.IText('Web Developer | Creative Agency', { left: 300, top: 350, fontSize: 16, fontFamily: 'Inter', fontWeight: '600', fill: '#000' });
+                    const date2 = new fabric.IText('2018 - 2020', { left: 300, top: 375, fontSize: 12, fontFamily: 'Inter', fill: '#6b7280' });
+                    const desc2 = new fabric.IText('• Developed responsive websites for 20+ clients.\n• Collaborated with designers to implement pixel-perfect UIs.', { left: 300, top: 400, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.5, fill: '#4b5563', width: 450, splitByGrapheme: true });
+
+                    canvas.add(name, title, line, contactHeader, contactInfo, skillsHeader, skillsInfo, expHeader, role1, date1, desc1, role2, date2, desc2);
+                },
+                creative: () => {
+                    canvas.setBackgroundColor('#f0f4f8', canvas.renderAll.bind(canvas));
+                    // Sidebar Background
+                    const sidebar = new fabric.Rect({ left: 0, top: 0, width: 280, height: canvas.height, fill: '#1e293b' });
+
+                    // Name in Sidebar
+                    const name = new fabric.IText('JANE\nSMITH', { left: 30, top: 60, fontSize: 48, fontFamily: 'Inter', fontWeight: '800', fill: '#fff', lineHeight: 0.9 });
+                    const title = new fabric.IText('GRAPHIC DESIGNER', { left: 30, top: 160, fontSize: 18, fontFamily: 'Inter', letterSpacing: 2, fill: '#38bdf8' });
+
+                    // Sidebar Content
+                    const contactHeader = new fabric.IText('CONTACT', { left: 30, top: 250, fontSize: 16, fontFamily: 'Inter', fontWeight: '700', fill: '#94a3b8' });
+                    const contactInfo = new fabric.IText('jane@design.com\n+1 234 567 890\nPortfolio.com', { left: 30, top: 280, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#cbd5e1' });
+
+                    // Main Content
+                    const profileHeader = new fabric.IText('PROFILE', { left: 320, top: 60, fontSize: 24, fontFamily: 'Inter', fontWeight: '800', fill: '#1e293b' });
+                    const profileText = new fabric.IText('Passionate graphic designer with a keen eye for detail and a love for modern aesthetics. Specialized in branding and digital design.', { left: 320, top: 100, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#475569', width: 400, splitByGrapheme: true });
+
+                    const expHeader = new fabric.IText('EXPERIENCE', { left: 320, top: 200, fontSize: 24, fontFamily: 'Inter', fontWeight: '800', fill: '#1e293b' });
+
+                    const role1 = new fabric.IText('Art Director', { left: 320, top: 240, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#0f172a' });
+                    const desc1 = new fabric.IText('Studio X | 2021 - Present\nOverseeing visual direction for major campaigns.', { left: 320, top: 265, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.5, fill: '#475569' });
+
+                    canvas.add(sidebar, name, title, contactHeader, contactInfo, profileHeader, profileText, expHeader, role1, desc1);
+                    sidebar.sendToBack();
+                }
+            };
+
+            function showCVBuilder() {
+                showTab('cv-builder');
+                // Don't auto-load, let user choose
+            }
+
+            function loadCVTemplate(type) {
+                if (confirm('Load template? Current canvas will be cleared.')) {
+                    canvas.clear();
+                    canvas.setDimensions({ width: 794, height: 1123 }); // A4 size
+                    if (resumeTemplates[type]) {
+                        resumeTemplates[type]();
+                    }
+                    document.getElementById('canvasWidth').value = canvas.width;
+                    document.getElementById('canvasHeight').value = canvas.height;
+                    saveState();
+                }
+            }
+
+            async function aiWriteContent() {
+                const active = canvas.getActiveObject();
+                if (!active || active.type !== 'i-text') {
+                    alert('Please select a text box to add AI content.');
+                    return;
+                }
+
+                const originalText = active.text;
+                active.set('text', originalText + '\n\n⏳ Generating (Mock)...');
+                canvas.renderAll();
+
+                setTimeout(() => {
+                    const mockText = "This is a simulated AI text response.\nIt demonstrates the layout without a backend.";
+                    active.set('text', originalText + '\n\n' + mockText);
+                    canvas.renderAll();
+                    saveState();
+                    alert('✅ AI content added (Mock)!');
+                }, 1000);
+            }
+
+            // Save/Load/Export
+            function saveDesign() {
+                const name = prompt('Enter design name:', 'Untitled Design');
+                if (!name) return;
+                const id = currentDesignId || 'design-' + Date.now();
+                const design = {
+                    id: id, name: name, data: canvas.toJSON(),
+                    thumbnail: canvas.toDataURL({ format: 'png', quality: 0.3, multiplier: 0.2 }),
+                    created: new Date().toISOString()
+                };
+                let saved = JSON.parse(localStorage.getItem('savedDesigns') || '{}');
+                saved[id] = design;
+                localStorage.setItem('savedDesigns', JSON.stringify(saved));
+                currentDesignId = id;
+                alert('✅ Saved!');
+            }
+
+            function showSavedDesigns() {
+                const saved = JSON.parse(localStorage.getItem('savedDesigns') || '{}');
+                const container = document.getElementById('savedDesignsList');
+                if (Object.keys(saved).length === 0) {
+                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No saved designs</p>';
+                } else {
+                    container.innerHTML = Object.values(saved).map(design => `
+                    <div style="background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer;" onclick="loadSavedDesign('${design.id}')">
+                        <div style="font-weight: 600; margin-bottom: 5px;">${design.name}</div>
+                        <div style="font-size: 12px; color: var(--text-muted);">Created: ${new Date(design.created).toLocaleDateString()}</div>
+                    </div>
+                `).join('');
+                }
+                document.getElementById('savedModal').style.display = 'flex';
+            }
+
+            function loadSavedDesign(id) {
+                const saved = JSON.parse(localStorage.getItem('savedDesigns') || '{}');
+                if (saved[id]) {
+                    canvas.loadFromJSON(saved[id].data, () => {
+                        canvas.renderAll();
+                        currentDesignId = id;
+                        document.getElementById('canvasWidth').value = canvas.width;
+                        document.getElementById('canvasHeight').value = canvas.height;
+                        saveState();
+                    });
+                    closeSavedModal();
+                }
+            }
+
+            function closeSavedModal() { document.getElementById('savedModal').style.display = 'none'; }
+            function showExportModal() { document.getElementById('exportModal').style.display = 'flex'; }
+            function closeExportModal() { document.getElementById('exportModal').style.display = 'none'; }
+
+            function toggleJpgQuality() {
+                const format = document.getElementById('exportFormat').value;
+                document.getElementById('jpgQualityDiv').style.display = format === 'jpeg' ? 'block' : 'none';
+            }
+            function updateQualityLabel() {
+                document.getElementById('jpgQualityValue').textContent = Math.round(document.getElementById('jpgQuality').value * 100);
+            }
+
+            function confirmExport() {
+                try {
+                    const format = document.getElementById('exportFormat').value;
+                    const scale = parseFloat(document.getElementById('exportScale').value);
+                    const quality = format === 'jpeg' ? parseFloat(document.getElementById('jpgQuality').value) : 1;
+                    const dataURL = canvas.toDataURL({ format: format, quality: quality, multiplier: scale });
+                    const link = document.createElement('a');
+                    link.download = 'design-' + Date.now() + '.' + format;
+                    link.href = dataURL;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    closeExportModal();
+                } catch (error) {
+                    alert('❌ Export failed: ' + error.message);
+                }
+            }
+
+            // Tab Switching
+            function showTab(tabName) {
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.sidebar-tab').forEach(btn => btn.classList.remove('active'));
+                document.getElementById(tabName).classList.add('active');
+                event.target.closest('.sidebar-tab').classList.add('active');
+            }
+
+            // Properties Panel
+            function updateProperties(e) {
+                const obj = e.target || e.selected[0];
+                const panel = document.getElementById('propertiesPanel');
+                if (!obj) return;
+
+                if (obj.type === 'i-text') {
+                    panel.innerHTML = `
+                    <label class="property-label">Font Size</label>
+                    <input type="number" value="${obj.fontSize}" onchange="updateProp('fontSize', this.value)">
+                    <label class="property-label">Text Color</label>
+                    <input type="color" value="${obj.fill}" onchange="updateProp('fill', this.value)">
+                    <label class="property-label">Font Weight</label>
+                    <select onchange="updateProp('fontWeight', this.value)">
+                        <option value="normal" ${obj.fontWeight === 'normal' ? 'selected' : ''}>Normal</option>
+                        <option value="bold" ${obj.fontWeight === 'bold' ? 'selected' : ''}>Bold</option>
+                    </select>
+                `;
+                } else {
+                    panel.innerHTML = `
+                    <label class="property-label">Fill Color</label>
+                    <input type="color" value="${obj.fill}" onchange="updateProp('fill', this.value)">
+                    <label class="property-label">Opacity</label>
+                    <input type="range" min="0" max="1" step="0.1" value="${obj.opacity}" onchange="updateProp('opacity', this.value)">
+                `;
+                }
+            }
+
+            function updateProp(prop, value) {
+                const obj = canvas.getActiveObject();
+                if (obj) {
+                    if (prop === 'fontSize') value = parseInt(value);
+                    if (prop === 'opacity') value = parseFloat(value);
+                    obj.set(prop, value);
+                    canvas.renderAll();
+                    saveState();
+                }
+            }
+
+            function clearProperties() {
+                document.getElementById('propertiesPanel').innerHTML = `
+                <p style="color: var(--text-muted); text-align: center; margin-top: 50px;">
+                    <i class="fas fa-mouse-pointer" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 15px;"></i>
+                    Select an object to edit
+                </p>
+            `;
+            }
+
+            // Keyboard Shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Delete' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                    deleteSelected();
+                }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                    e.preventDefault();
+                    if (e.shiftKey) redo(); else undo();
+                }
+            });
+    </script>
+</body>
+
+</html>

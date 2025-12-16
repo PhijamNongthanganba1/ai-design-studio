@@ -1,0 +1,15 @@
+{
+    "name": "ai-design-studio",
+    "version": "1.0.0",
+    "description": "AI Design Studio - Full Stack",
+    "scripts": {
+        "dev": "echo Starting Dev...",
+        "build": "exit 0"
+    },
+    "dependencies": {
+        "axios": "^1.6.2",
+        "dotenv": "^16.3.1",
+        "express": "^5.2.1",
+        "mongodb": "^6.3.0"
+    }
+}
