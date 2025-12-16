@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 ULTRA AI Design Studio Pro - Complete Edition</title>
+    <title>🚀 Nongthang's Studio - AI Design Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
@@ -450,7 +450,11 @@
 <body>
     <div class="app">
         <div class="toolbar">
-            <div class="logo"><i class="fas fa-wand-magic-sparkles"></i> ULTRA AI Studio</div>
+            <div class="logo">
+                <img src="https://i.ibb.co/6PqDq0v/stylish-n-logo.png"
+                    style="height: 30px; vertical-align: middle; margin-right: 10px; border-radius: 5px;" alt="N Logo">
+                Nongthang's Studio
+            </div>
             <button class="btn" onclick="addText()"><i class="fas fa-font"></i> Text</button>
             <button class="btn" onclick="addShape('rectangle')"><i class="fas fa-square"></i></button>
             <button class="btn" onclick="addShape('circle')"><i class="fas fa-circle"></i></button>
@@ -1110,12 +1114,19 @@
                 });
                 const data = await response.json();
                 console.log('[AI Image] Response:', data);
+
                 if (data.success) {
+                    // Check if it was a fallback
+                    if (data.isMock) {
+                        alert('⚠️ Note: Using Mock Image (No API Key found).\nFor real AI, add HUGGINGFACE_API_KEY to your .env file.');
+                    }
+
                     fabric.Image.fromURL(data.image, (img) => {
                         if (!img) {
                             statusDiv.innerHTML = '❌ Failed to load image';
                             return;
                         }
+                        statusDiv.innerHTML = ''; // Clear loading status
                         img.scaleToWidth(Math.min(400, canvas.width * 0.5));
                         img.set({
                             left: canvas.width / 2 - img.getScaledWidth() / 2,
