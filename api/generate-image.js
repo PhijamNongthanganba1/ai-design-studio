@@ -16,13 +16,26 @@ module.exports = async (req, res) => {
 
     try {
         // Using Pollinations.ai (Reliable Redirect Method)
-        // This endpoint redirects to the generated image
-        const encodedPrompt = encodeURIComponent(prompt);
+        const styleMap = {
+            'enhance': 'enhanced, highly detailed, sharp focus, 8k, uhd',
+            'photographic': 'photorealistic, realistic, 8k, raw photo, photography, dslr, soft lighting',
+            'digital-art': 'digital art, concept art, trending on artstation, vivid colors, fantasy art',
+            '3d-model': '3d render, blender, unreal engine, octane render, isometric, low poly',
+            'anime': 'anime style, studio ghibli, makoto shinkai, vibrant colors, detailed line art, manga'
+        };
+
+        // Get style keywords or default to empty
+        const styleKeywords = styleMap[req.body.style] || '';
+
+        // Combine prompt with style
+        const finalPrompt = styleKeywords ? `${prompt}, ${styleKeywords}` : prompt;
+        const encodedPrompt = encodeURIComponent(finalPrompt);
+
         // Add random seed to URL to ensure unique images for same prompt
-        const seed = Math.floor(Math.random() * 100000);
+        const seed = Math.floor(Math.random() * 999999);
         const pollinationUrl = `https://pollinations.ai/p/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
 
-        console.log(`Generating image via Pollinations: ${pollinationUrl}`);
+        console.log(`Generating image via Pollinations: ${pollinationUrl} (Style: ${req.body.style || 'None'})`);
 
         const response = await axios.get(pollinationUrl, {
             responseType: 'arraybuffer',
@@ -30,7 +43,7 @@ module.exports = async (req, res) => {
                 // Mimic browser to avoid blocking
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
             },
-            timeout: 20000 // 20s timeout
+            timeout: 25000 // 25s timeout
         });
 
         // Convert binary buffer to Base64 data URL
@@ -41,16 +54,14 @@ module.exports = async (req, res) => {
             success: true,
             image: imageUrl,
             isMock: false,
-            provider: 'pollinations'
+            provider: 'pollinations',
+            styleApplied: req.body.style
         });
 
     } catch (error) {
         console.error('AI Generation Error:', error.message);
 
         // ROBUST FALLBACK:
-        // If AI fails, return a beautiful Unsplash image matching keywords if possible, or generic.
-        // This ensures the user ALWAYS sees an image and never an error loop.
-
         // Try to get 2 keywords from prompt for Unsplash
         const fallbackKeywords = encodeURIComponent(prompt.split(' ').slice(0, 2).join(','));
         const safeFallback = "https://images.unsplash.com/photo-1620641788421-7f1c338e85a5?w=600";
