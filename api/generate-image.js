@@ -37,10 +37,14 @@ module.exports = async (req, res) => {
 
         console.log(`Generating image URL: ${pollinationUrl}`);
 
-        // Return the URL directly. The browser will handle the loading.
+        // FIX CORS ISSUE: Wrap via wsrv.nl (standard public image proxy)
+        // This ensures Access-Control-Allow-Origin: * headers are present so canvas works.
+        const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(pollinationUrl)}&output=jpg`;
+
         res.json({
             success: true,
-            image: pollinationUrl,
+            image: proxyUrl, // Send the proxied URL
+            original: pollinationUrl,
             isMock: false,
             provider: 'pollinations',
             styleApplied: req.body.style
@@ -49,9 +53,10 @@ module.exports = async (req, res) => {
     } catch (error) {
         console.error('AI Processing Error:', error.message);
 
-        // ROBUST FALLBACK URL
+        // ROBUST FALLBACK URL (Using Unsplash + Proxy just in case)
         const fallbackKeywords = encodeURIComponent(prompt.split(' ').slice(0, 2).join(','));
-        const safeFallback = `https://source.unsplash.com/1024x1024/?${fallbackKeywords}`;
+        const unsplashUrl = `https://source.unsplash.com/1024x1024/?${fallbackKeywords}`;
+        const safeFallback = `https://wsrv.nl/?url=${encodeURIComponent(unsplashUrl)}&output=jpg`;
 
         res.json({
             success: true,
@@ -62,3 +67,4 @@ module.exports = async (req, res) => {
         });
     }
 };
+```
