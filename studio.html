@@ -1091,309 +1091,310 @@
         function showCVBuilder() {
             showTab('cv-builder');
             loadCVTemplate('professional');
+        }
 
-            // AI Features
-            function showAIImageModal() { document.getElementById('aiImageModal').style.display = 'flex'; }
-            function closeAIImageModal() { document.getElementById('aiImageModal').style.display = 'none'; document.getElementById('aiImageStatus').innerHTML = ''; }
+        // AI Features
+        function showAIImageModal() { document.getElementById('aiImageModal').style.display = 'flex'; }
+        function closeAIImageModal() { document.getElementById('aiImageModal').style.display = 'none'; document.getElementById('aiImageStatus').innerHTML = ''; }
 
-            async function generateAIImage() {
-                const prompt = document.getElementById('aiPrompt').value.trim();
-                if (!prompt) { alert('Please enter a description!'); return; }
-                const statusDiv = document.getElementById('aiImageStatus');
-                statusDiv.innerHTML = '<div class="loading"></div> Generating...';
-                try {
-                    const response = await fetch(`${API_URL}/api/generate-image`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ prompt, style: selectedStyle, width: 1024, height: 1024 })
-                    });
-                    const data = await response.json();
-                    console.log('[AI Image] Response:', data);
-                    if (data.success) {
-                        fabric.Image.fromURL(data.image, (img) => {
-                            if (!img) {
-                                statusDiv.innerHTML = '❌ Failed to load image';
-                                return;
-                            }
-                            img.scaleToWidth(Math.min(400, canvas.width * 0.5));
-                            img.set({
-                                left: canvas.width / 2 - img.getScaledWidth() / 2,
-                                top: canvas.height / 2 - img.getScaledHeight() / 2
-                            });
-                            canvas.add(img).setActiveObject(img).renderAll();
-                            saveState();
-                            closeAIImageModal();
-                            statusDiv.innerHTML = '✅ Success!';
-                        }, { crossOrigin: 'anonymous' });
-                    } else {
-                        statusDiv.innerHTML = `❌ Error: ${data.error}`;
-                    }
-                } catch (error) {
-                    statusDiv.innerHTML = `❌ Failed to generate. Check backend.`;
-                    console.error(error);
-                }
-            }
-
-            // Other AI Placeholders
-            async function removeBackground() {
-                const active = canvas.getActiveObject();
-                if (!active || active.type !== 'image') {
-                    alert('⚠️ Please select an IMAGE first!');
-                    return;
-                }
-                const originalOpacity = active.opacity;
-                active.set('opacity', 0.5);
-                canvas.renderAll();
-                try {
-                    const dataUrl = active.toDataURL({ format: 'png' });
-                    const blob = await (await fetch(dataUrl)).blob();
-                    const formData = new FormData();
-                    formData.append('image', blob, 'image.png');
-                    const response = await fetch(`${API_URL}/api/remove-background`, {
-                        method: 'POST',
-                        body: formData
-                    });
-                    const data = await response.json();
-                    if (data.success) {
-                        fabric.Image.fromURL(data.image, (img) => {
-                            if (!img) {
-                                active.set('opacity', originalOpacity);
-                                canvas.renderAll();
-                                return;
-                            }
-                            img.set({
-                                left: active.left,
-                                top: active.top,
-                                scaleX: active.scaleX,
-                                scaleY: active.scaleY
-                            });
-                            canvas.remove(active);
-                            canvas.add(img).setActiveObject(img);
-                            canvas.renderAll();
-                            saveState();
-                            alert(data.isMock ? '✅ BG Removed (Mock)' : '✅ BG Removed!');
+        async function generateAIImage() {
+            const prompt = document.getElementById('aiPrompt').value.trim();
+            if (!prompt) { alert('Please enter a description!'); return; }
+            const statusDiv = document.getElementById('aiImageStatus');
+            statusDiv.innerHTML = '<div class="loading"></div> Generating...';
+            try {
+                const response = await fetch(`${API_URL}/api/generate-image`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, style: selectedStyle, width: 1024, height: 1024 })
+                });
+                const data = await response.json();
+                console.log('[AI Image] Response:', data);
+                if (data.success) {
+                    fabric.Image.fromURL(data.image, (img) => {
+                        if (!img) {
+                            statusDiv.innerHTML = '❌ Failed to load image';
+                            return;
+                        }
+                        img.scaleToWidth(Math.min(400, canvas.width * 0.5));
+                        img.set({
+                            left: canvas.width / 2 - img.getScaledWidth() / 2,
+                            top: canvas.height / 2 - img.getScaledHeight() / 2
                         });
-                    } else {
-                        active.set('opacity', originalOpacity);
+                        canvas.add(img).setActiveObject(img).renderAll();
+                        saveState();
+                        closeAIImageModal();
+                        statusDiv.innerHTML = '✅ Success!';
+                    }, { crossOrigin: 'anonymous' });
+                } else {
+                    statusDiv.innerHTML = `❌ Error: ${data.error}`;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `❌ Failed to generate. Check backend.`;
+                console.error(error);
+            }
+        }
+
+        // Other AI Placeholders
+        async function removeBackground() {
+            const active = canvas.getActiveObject();
+            if (!active || active.type !== 'image') {
+                alert('⚠️ Please select an IMAGE first!');
+                return;
+            }
+            const originalOpacity = active.opacity;
+            active.set('opacity', 0.5);
+            canvas.renderAll();
+            try {
+                const dataUrl = active.toDataURL({ format: 'png' });
+                const blob = await (await fetch(dataUrl)).blob();
+                const formData = new FormData();
+                formData.append('image', blob, 'image.png');
+                const response = await fetch(`${API_URL}/api/remove-background`, {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                if (data.success) {
+                    fabric.Image.fromURL(data.image, (img) => {
+                        if (!img) {
+                            active.set('opacity', originalOpacity);
+                            canvas.renderAll();
+                            return;
+                        }
+                        img.set({
+                            left: active.left,
+                            top: active.top,
+                            scaleX: active.scaleX,
+                            scaleY: active.scaleY
+                        });
+                        canvas.remove(active);
+                        canvas.add(img).setActiveObject(img);
                         canvas.renderAll();
-                        alert('❌ Error');
-                    }
-                } catch (error) {
+                        saveState();
+                        alert(data.isMock ? '✅ BG Removed (Mock)' : '✅ BG Removed!');
+                    });
+                } else {
                     active.set('opacity', originalOpacity);
                     canvas.renderAll();
-                    alert('❌ Backend error');
+                    alert('❌ Error');
                 }
-            }
-            async function upscaleImage() {
-                const active = canvas.getActiveObject();
-                if (!active || active.type !== 'image') {
-                    alert('⚠️ Please select an IMAGE first!');
-                    return;
-                }
-                if (confirm('Backend is removed. Mock upscale?')) {
-                    // allow user to just see an alert
-                    alert('✅ Upscaled 4x (Mock)!');
-                }
-            }
-            function removeObject() {
-                const active = canvas.getActiveObject();
-                if (!active || active.type !== 'image') {
-                    alert('⚠️ Please select an IMAGE first!');
-                    return;
-                }
-                alert('🔧 Smart Erase\n\nComing soon! Will use Stability AI Inpainting.');
-            }
-            async function createAIVideo() {
-                alert('⚠️ AI Video generation requires a backend server.');
-            }
-
-            // Resume Builder Implementation
-            const resumeTemplates = {
-                professional: () => {
-                    canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
-                    // Header
-                    const name = new fabric.IText('JOHN DOE', { left: 50, top: 50, fontSize: 40, fontFamily: 'Inter', fontWeight: '800', fill: '#2c3e50' });
-                    const title = new fabric.IText('Software Engineer', { left: 50, top: 100, fontSize: 24, fontFamily: 'Inter', fill: '#7c3aed' });
-                    const line = new fabric.Rect({ left: 50, top: 140, width: 700, height: 3, fill: '#2c3e50' });
-
-                    // Left Column (Contact & Skills)
-                    const contactHeader = new fabric.IText('CONTACT', { left: 50, top: 180, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#2c3e50' });
-                    const contactInfo = new fabric.IText('john@example.com\n(123) 456-7890\nNew York, NY\nlinkedin.com/in/johndoe', { left: 50, top: 210, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#4b5563' });
-
-                    const skillsHeader = new fabric.IText('SKILLS', { left: 50, top: 350, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#2c3e50' });
-                    const skillsInfo = new fabric.IText('• JavaScript (React, Node)\n• Python (Django, Flask)\n• UI/UX Design\n• Agile Methodology', { left: 50, top: 380, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#4b5563' });
-
-                    // Right Column (Experience)
-                    const expHeader = new fabric.IText('EXPERIENCE', { left: 300, top: 180, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#2c3e50' });
-
-                    const role1 = new fabric.IText('Senior Developer | Tech Co.', { left: 300, top: 210, fontSize: 16, fontFamily: 'Inter', fontWeight: '600', fill: '#000' });
-                    const date1 = new fabric.IText('2020 - Present', { left: 300, top: 235, fontSize: 12, fontFamily: 'Inter', fill: '#6b7280' });
-                    const desc1 = new fabric.IText('• Led a team of 5 developers to build a SaaS platform.\n• Improved system performance by 40%.\n• Implemented CI/CD pipelines.', { left: 300, top: 260, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.5, fill: '#4b5563', width: 450, splitByGrapheme: true });
-
-                    const role2 = new fabric.IText('Web Developer | Creative Agency', { left: 300, top: 350, fontSize: 16, fontFamily: 'Inter', fontWeight: '600', fill: '#000' });
-                    const date2 = new fabric.IText('2018 - 2020', { left: 300, top: 375, fontSize: 12, fontFamily: 'Inter', fill: '#6b7280' });
-                    const desc2 = new fabric.IText('• Developed responsive websites for 20+ clients.\n• Collaborated with designers to implement pixel-perfect UIs.', { left: 300, top: 400, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.5, fill: '#4b5563', width: 450, splitByGrapheme: true });
-
-                    canvas.add(name, title, line, contactHeader, contactInfo, skillsHeader, skillsInfo, expHeader, role1, date1, desc1, role2, date2, desc2);
-                },
-                creative: () => {
-                    canvas.setBackgroundColor('#f0f4f8', canvas.renderAll.bind(canvas));
-                    // Sidebar Background
-                    const sidebar = new fabric.Rect({ left: 0, top: 0, width: 280, height: canvas.height, fill: '#1e293b' });
-
-                    // Name in Sidebar
-                    const name = new fabric.IText('JANE\nSMITH', { left: 30, top: 60, fontSize: 48, fontFamily: 'Inter', fontWeight: '800', fill: '#fff', lineHeight: 0.9 });
-                    const title = new fabric.IText('GRAPHIC DESIGNER', { left: 30, top: 160, fontSize: 18, fontFamily: 'Inter', letterSpacing: 2, fill: '#38bdf8' });
-
-                    // Sidebar Content
-                    const contactHeader = new fabric.IText('CONTACT', { left: 30, top: 250, fontSize: 16, fontFamily: 'Inter', fontWeight: '700', fill: '#94a3b8' });
-                    const contactInfo = new fabric.IText('jane@design.com\n+1 234 567 890\nPortfolio.com', { left: 30, top: 280, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#cbd5e1' });
-
-                    // Main Content
-                    const profileHeader = new fabric.IText('PROFILE', { left: 320, top: 60, fontSize: 24, fontFamily: 'Inter', fontWeight: '800', fill: '#1e293b' });
-                    const profileText = new fabric.IText('Passionate graphic designer with a keen eye for detail and a love for modern aesthetics. Specialized in branding and digital design.', { left: 320, top: 100, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#475569', width: 400, splitByGrapheme: true });
-
-                    const expHeader = new fabric.IText('EXPERIENCE', { left: 320, top: 200, fontSize: 24, fontFamily: 'Inter', fontWeight: '800', fill: '#1e293b' });
-
-                    const role1 = new fabric.IText('Art Director', { left: 320, top: 240, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#0f172a' });
-                    const desc1 = new fabric.IText('Studio X | 2021 - Present\nOverseeing visual direction for major campaigns.', { left: 320, top: 265, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.5, fill: '#475569' });
-
-                    canvas.add(sidebar, name, title, contactHeader, contactInfo, profileHeader, profileText, expHeader, role1, desc1);
-                    sidebar.sendToBack();
-                }
-            };
-
-            function showCVBuilder() {
-                showTab('cv-builder');
-                // Don't auto-load, let user choose
-            }
-
-            function loadCVTemplate(type) {
-                if (confirm('Load template? Current canvas will be cleared.')) {
-                    canvas.clear();
-                    canvas.setDimensions({ width: 794, height: 1123 }); // A4 size
-                    if (resumeTemplates[type]) {
-                        resumeTemplates[type]();
-                    }
-                    document.getElementById('canvasWidth').value = canvas.width;
-                    document.getElementById('canvasHeight').value = canvas.height;
-                    saveState();
-                }
-            }
-
-            async function aiWriteContent() {
-                const active = canvas.getActiveObject();
-                if (!active || active.type !== 'i-text') {
-                    alert('Please select a text box to add AI content.');
-                    return;
-                }
-
-                const originalText = active.text;
-                active.set('text', originalText + '\n\n⏳ Generating (Mock)...');
+            } catch (error) {
+                active.set('opacity', originalOpacity);
                 canvas.renderAll();
+                alert('❌ Backend error');
+            }
+        }
+        async function upscaleImage() {
+            const active = canvas.getActiveObject();
+            if (!active || active.type !== 'image') {
+                alert('⚠️ Please select an IMAGE first!');
+                return;
+            }
+            if (confirm('Backend is removed. Mock upscale?')) {
+                // allow user to just see an alert
+                alert('✅ Upscaled 4x (Mock)!');
+            }
+        }
+        function removeObject() {
+            const active = canvas.getActiveObject();
+            if (!active || active.type !== 'image') {
+                alert('⚠️ Please select an IMAGE first!');
+                return;
+            }
+            alert('🔧 Smart Erase\n\nComing soon! Will use Stability AI Inpainting.');
+        }
+        async function createAIVideo() {
+            alert('⚠️ AI Video generation requires a backend server.');
+        }
 
-                setTimeout(() => {
-                    const mockText = "This is a simulated AI text response.\nIt demonstrates the layout without a backend.";
-                    active.set('text', originalText + '\n\n' + mockText);
-                    canvas.renderAll();
-                    saveState();
-                    alert('✅ AI content added (Mock)!');
-                }, 1000);
+        // Resume Builder Implementation
+        const resumeTemplates = {
+            professional: () => {
+                canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
+                // Header
+                const name = new fabric.IText('JOHN DOE', { left: 50, top: 50, fontSize: 40, fontFamily: 'Inter', fontWeight: '800', fill: '#2c3e50' });
+                const title = new fabric.IText('Software Engineer', { left: 50, top: 100, fontSize: 24, fontFamily: 'Inter', fill: '#7c3aed' });
+                const line = new fabric.Rect({ left: 50, top: 140, width: 700, height: 3, fill: '#2c3e50' });
+
+                // Left Column (Contact & Skills)
+                const contactHeader = new fabric.IText('CONTACT', { left: 50, top: 180, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#2c3e50' });
+                const contactInfo = new fabric.IText('john@example.com\n(123) 456-7890\nNew York, NY\nlinkedin.com/in/johndoe', { left: 50, top: 210, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#4b5563' });
+
+                const skillsHeader = new fabric.IText('SKILLS', { left: 50, top: 350, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#2c3e50' });
+                const skillsInfo = new fabric.IText('• JavaScript (React, Node)\n• Python (Django, Flask)\n• UI/UX Design\n• Agile Methodology', { left: 50, top: 380, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#4b5563' });
+
+                // Right Column (Experience)
+                const expHeader = new fabric.IText('EXPERIENCE', { left: 300, top: 180, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#2c3e50' });
+
+                const role1 = new fabric.IText('Senior Developer | Tech Co.', { left: 300, top: 210, fontSize: 16, fontFamily: 'Inter', fontWeight: '600', fill: '#000' });
+                const date1 = new fabric.IText('2020 - Present', { left: 300, top: 235, fontSize: 12, fontFamily: 'Inter', fill: '#6b7280' });
+                const desc1 = new fabric.IText('• Led a team of 5 developers to build a SaaS platform.\n• Improved system performance by 40%.\n• Implemented CI/CD pipelines.', { left: 300, top: 260, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.5, fill: '#4b5563', width: 450, splitByGrapheme: true });
+
+                const role2 = new fabric.IText('Web Developer | Creative Agency', { left: 300, top: 350, fontSize: 16, fontFamily: 'Inter', fontWeight: '600', fill: '#000' });
+                const date2 = new fabric.IText('2018 - 2020', { left: 300, top: 375, fontSize: 12, fontFamily: 'Inter', fill: '#6b7280' });
+                const desc2 = new fabric.IText('• Developed responsive websites for 20+ clients.\n• Collaborated with designers to implement pixel-perfect UIs.', { left: 300, top: 400, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.5, fill: '#4b5563', width: 450, splitByGrapheme: true });
+
+                canvas.add(name, title, line, contactHeader, contactInfo, skillsHeader, skillsInfo, expHeader, role1, date1, desc1, role2, date2, desc2);
+            },
+            creative: () => {
+                canvas.setBackgroundColor('#f0f4f8', canvas.renderAll.bind(canvas));
+                // Sidebar Background
+                const sidebar = new fabric.Rect({ left: 0, top: 0, width: 280, height: canvas.height, fill: '#1e293b' });
+
+                // Name in Sidebar
+                const name = new fabric.IText('JANE\nSMITH', { left: 30, top: 60, fontSize: 48, fontFamily: 'Inter', fontWeight: '800', fill: '#fff', lineHeight: 0.9 });
+                const title = new fabric.IText('GRAPHIC DESIGNER', { left: 30, top: 160, fontSize: 18, fontFamily: 'Inter', letterSpacing: 2, fill: '#38bdf8' });
+
+                // Sidebar Content
+                const contactHeader = new fabric.IText('CONTACT', { left: 30, top: 250, fontSize: 16, fontFamily: 'Inter', fontWeight: '700', fill: '#94a3b8' });
+                const contactInfo = new fabric.IText('jane@design.com\n+1 234 567 890\nPortfolio.com', { left: 30, top: 280, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#cbd5e1' });
+
+                // Main Content
+                const profileHeader = new fabric.IText('PROFILE', { left: 320, top: 60, fontSize: 24, fontFamily: 'Inter', fontWeight: '800', fill: '#1e293b' });
+                const profileText = new fabric.IText('Passionate graphic designer with a keen eye for detail and a love for modern aesthetics. Specialized in branding and digital design.', { left: 320, top: 100, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.6, fill: '#475569', width: 400, splitByGrapheme: true });
+
+                const expHeader = new fabric.IText('EXPERIENCE', { left: 320, top: 200, fontSize: 24, fontFamily: 'Inter', fontWeight: '800', fill: '#1e293b' });
+
+                const role1 = new fabric.IText('Art Director', { left: 320, top: 240, fontSize: 18, fontFamily: 'Inter', fontWeight: '700', fill: '#0f172a' });
+                const desc1 = new fabric.IText('Studio X | 2021 - Present\nOverseeing visual direction for major campaigns.', { left: 320, top: 265, fontSize: 14, fontFamily: 'Inter', lineHeight: 1.5, fill: '#475569' });
+
+                canvas.add(sidebar, name, title, contactHeader, contactInfo, profileHeader, profileText, expHeader, role1, desc1);
+                sidebar.sendToBack();
+            }
+        };
+
+        function showCVBuilder() {
+            showTab('cv-builder');
+            // Don't auto-load, let user choose
+        }
+
+        function loadCVTemplate(type) {
+            if (confirm('Load template? Current canvas will be cleared.')) {
+                canvas.clear();
+                canvas.setDimensions({ width: 794, height: 1123 }); // A4 size
+                if (resumeTemplates[type]) {
+                    resumeTemplates[type]();
+                }
+                document.getElementById('canvasWidth').value = canvas.width;
+                document.getElementById('canvasHeight').value = canvas.height;
+                saveState();
+            }
+        }
+
+        async function aiWriteContent() {
+            const active = canvas.getActiveObject();
+            if (!active || active.type !== 'i-text') {
+                alert('Please select a text box to add AI content.');
+                return;
             }
 
-            // Save/Load/Export
-            function saveDesign() {
-                const name = prompt('Enter design name:', 'Untitled Design');
-                if (!name) return;
-                const id = currentDesignId || 'design-' + Date.now();
-                const design = {
-                    id: id, name: name, data: canvas.toJSON(),
-                    thumbnail: canvas.toDataURL({ format: 'png', quality: 0.3, multiplier: 0.2 }),
-                    created: new Date().toISOString()
-                };
-                let saved = JSON.parse(localStorage.getItem('savedDesigns') || '{}');
-                saved[id] = design;
-                localStorage.setItem('savedDesigns', JSON.stringify(saved));
-                currentDesignId = id;
-                alert('✅ Saved!');
-            }
+            const originalText = active.text;
+            active.set('text', originalText + '\n\n⏳ Generating (Mock)...');
+            canvas.renderAll();
 
-            function showSavedDesigns() {
-                const saved = JSON.parse(localStorage.getItem('savedDesigns') || '{}');
-                const container = document.getElementById('savedDesignsList');
-                if (Object.keys(saved).length === 0) {
-                    container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No saved designs</p>';
-                } else {
-                    container.innerHTML = Object.values(saved).map(design => `
+            setTimeout(() => {
+                const mockText = "This is a simulated AI text response.\nIt demonstrates the layout without a backend.";
+                active.set('text', originalText + '\n\n' + mockText);
+                canvas.renderAll();
+                saveState();
+                alert('✅ AI content added (Mock)!');
+            }, 1000);
+        }
+
+        // Save/Load/Export
+        function saveDesign() {
+            const name = prompt('Enter design name:', 'Untitled Design');
+            if (!name) return;
+            const id = currentDesignId || 'design-' + Date.now();
+            const design = {
+                id: id, name: name, data: canvas.toJSON(),
+                thumbnail: canvas.toDataURL({ format: 'png', quality: 0.3, multiplier: 0.2 }),
+                created: new Date().toISOString()
+            };
+            let saved = JSON.parse(localStorage.getItem('savedDesigns') || '{}');
+            saved[id] = design;
+            localStorage.setItem('savedDesigns', JSON.stringify(saved));
+            currentDesignId = id;
+            alert('✅ Saved!');
+        }
+
+        function showSavedDesigns() {
+            const saved = JSON.parse(localStorage.getItem('savedDesigns') || '{}');
+            const container = document.getElementById('savedDesignsList');
+            if (Object.keys(saved).length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted); text-align: center;">No saved designs</p>';
+            } else {
+                container.innerHTML = Object.values(saved).map(design => `
                     <div style="background: #2c3e50; padding: 15px; border-radius: 8px; margin-bottom: 10px; cursor: pointer;" onclick="loadSavedDesign('${design.id}')">
                         <div style="font-weight: 600; margin-bottom: 5px;">${design.name}</div>
                         <div style="font-size: 12px; color: var(--text-muted);">Created: ${new Date(design.created).toLocaleDateString()}</div>
                     </div>
                 `).join('');
-                }
-                document.getElementById('savedModal').style.display = 'flex';
             }
+            document.getElementById('savedModal').style.display = 'flex';
+        }
 
-            function loadSavedDesign(id) {
-                const saved = JSON.parse(localStorage.getItem('savedDesigns') || '{}');
-                if (saved[id]) {
-                    canvas.loadFromJSON(saved[id].data, () => {
-                        canvas.renderAll();
-                        currentDesignId = id;
-                        document.getElementById('canvasWidth').value = canvas.width;
-                        document.getElementById('canvasHeight').value = canvas.height;
-                        saveState();
-                    });
-                    closeSavedModal();
-                }
+        function loadSavedDesign(id) {
+            const saved = JSON.parse(localStorage.getItem('savedDesigns') || '{}');
+            if (saved[id]) {
+                canvas.loadFromJSON(saved[id].data, () => {
+                    canvas.renderAll();
+                    currentDesignId = id;
+                    document.getElementById('canvasWidth').value = canvas.width;
+                    document.getElementById('canvasHeight').value = canvas.height;
+                    saveState();
+                });
+                closeSavedModal();
             }
+        }
 
-            function closeSavedModal() { document.getElementById('savedModal').style.display = 'none'; }
-            function showExportModal() { document.getElementById('exportModal').style.display = 'flex'; }
-            function closeExportModal() { document.getElementById('exportModal').style.display = 'none'; }
+        function closeSavedModal() { document.getElementById('savedModal').style.display = 'none'; }
+        function showExportModal() { document.getElementById('exportModal').style.display = 'flex'; }
+        function closeExportModal() { document.getElementById('exportModal').style.display = 'none'; }
 
-            function toggleJpgQuality() {
+        function toggleJpgQuality() {
+            const format = document.getElementById('exportFormat').value;
+            document.getElementById('jpgQualityDiv').style.display = format === 'jpeg' ? 'block' : 'none';
+        }
+        function updateQualityLabel() {
+            document.getElementById('jpgQualityValue').textContent = Math.round(document.getElementById('jpgQuality').value * 100);
+        }
+
+        function confirmExport() {
+            try {
                 const format = document.getElementById('exportFormat').value;
-                document.getElementById('jpgQualityDiv').style.display = format === 'jpeg' ? 'block' : 'none';
+                const scale = parseFloat(document.getElementById('exportScale').value);
+                const quality = format === 'jpeg' ? parseFloat(document.getElementById('jpgQuality').value) : 1;
+                const dataURL = canvas.toDataURL({ format: format, quality: quality, multiplier: scale });
+                const link = document.createElement('a');
+                link.download = 'design-' + Date.now() + '.' + format;
+                link.href = dataURL;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                closeExportModal();
+            } catch (error) {
+                alert('❌ Export failed: ' + error.message);
             }
-            function updateQualityLabel() {
-                document.getElementById('jpgQualityValue').textContent = Math.round(document.getElementById('jpgQuality').value * 100);
-            }
+        }
 
-            function confirmExport() {
-                try {
-                    const format = document.getElementById('exportFormat').value;
-                    const scale = parseFloat(document.getElementById('exportScale').value);
-                    const quality = format === 'jpeg' ? parseFloat(document.getElementById('jpgQuality').value) : 1;
-                    const dataURL = canvas.toDataURL({ format: format, quality: quality, multiplier: scale });
-                    const link = document.createElement('a');
-                    link.download = 'design-' + Date.now() + '.' + format;
-                    link.href = dataURL;
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                    closeExportModal();
-                } catch (error) {
-                    alert('❌ Export failed: ' + error.message);
-                }
-            }
+        // Tab Switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.sidebar-tab').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.closest('.sidebar-tab').classList.add('active');
+        }
 
-            // Tab Switching
-            function showTab(tabName) {
-                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-                document.querySelectorAll('.sidebar-tab').forEach(btn => btn.classList.remove('active'));
-                document.getElementById(tabName).classList.add('active');
-                event.target.closest('.sidebar-tab').classList.add('active');
-            }
+        // Properties Panel
+        function updateProperties(e) {
+            const obj = e.target || e.selected[0];
+            const panel = document.getElementById('propertiesPanel');
+            if (!obj) return;
 
-            // Properties Panel
-            function updateProperties(e) {
-                const obj = e.target || e.selected[0];
-                const panel = document.getElementById('propertiesPanel');
-                if (!obj) return;
-
-                if (obj.type === 'i-text') {
-                    panel.innerHTML = `
+            if (obj.type === 'i-text') {
+                panel.innerHTML = `
                     <label class="property-label">Font Size</label>
                     <input type="number" value="${obj.fontSize}" onchange="updateProp('fontSize', this.value)">
                     <label class="property-label">Text Color</label>
@@ -1404,46 +1405,46 @@
                         <option value="bold" ${obj.fontWeight === 'bold' ? 'selected' : ''}>Bold</option>
                     </select>
                 `;
-                } else {
-                    panel.innerHTML = `
+            } else {
+                panel.innerHTML = `
                     <label class="property-label">Fill Color</label>
                     <input type="color" value="${obj.fill}" onchange="updateProp('fill', this.value)">
                     <label class="property-label">Opacity</label>
                     <input type="range" min="0" max="1" step="0.1" value="${obj.opacity}" onchange="updateProp('opacity', this.value)">
                 `;
-                }
             }
+        }
 
-            function updateProp(prop, value) {
-                const obj = canvas.getActiveObject();
-                if (obj) {
-                    if (prop === 'fontSize') value = parseInt(value);
-                    if (prop === 'opacity') value = parseFloat(value);
-                    obj.set(prop, value);
-                    canvas.renderAll();
-                    saveState();
-                }
+        function updateProp(prop, value) {
+            const obj = canvas.getActiveObject();
+            if (obj) {
+                if (prop === 'fontSize') value = parseInt(value);
+                if (prop === 'opacity') value = parseFloat(value);
+                obj.set(prop, value);
+                canvas.renderAll();
+                saveState();
             }
+        }
 
-            function clearProperties() {
-                document.getElementById('propertiesPanel').innerHTML = `
+        function clearProperties() {
+            document.getElementById('propertiesPanel').innerHTML = `
                 <p style="color: var(--text-muted); text-align: center; margin-top: 50px;">
                     <i class="fas fa-mouse-pointer" style="font-size: 48px; opacity: 0.3; display: block; margin-bottom: 15px;"></i>
                     Select an object to edit
                 </p>
             `;
-            }
+        }
 
-            // Keyboard Shortcuts
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Delete' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
-                    deleteSelected();
-                }
-                if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-                    e.preventDefault();
-                    if (e.shiftKey) redo(); else undo();
-                }
-            });
+        // Keyboard Shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Delete' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+                deleteSelected();
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                e.preventDefault();
+                if (e.shiftKey) redo(); else undo();
+            }
+        });
     </script>
 </body>
 
