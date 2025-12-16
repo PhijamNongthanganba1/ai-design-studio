@@ -15,7 +15,10 @@ module.exports = async (req, res) => {
     }
 
     try {
-        // Using Pollinations.ai (Reliable Redirect Method)
+        // Using Pollinations.ai (URL Construction Method)
+        // Vercel Free Tier has 10s timeout, so we CANNOT wait for the image to download here.
+        // Instead, we construct the URL and let the Frontend load it directly.
+
         const styleMap = {
             'enhance': 'enhanced, highly detailed, sharp focus, 8k, uhd',
             'photographic': 'photorealistic, realistic, 8k, raw photo, photography, dslr, soft lighting',
@@ -24,10 +27,7 @@ module.exports = async (req, res) => {
             'anime': 'anime style, studio ghibli, makoto shinkai, vibrant colors, detailed line art, manga'
         };
 
-        // Get style keywords or default to empty
         const styleKeywords = styleMap[req.body.style] || '';
-
-        // Combine prompt with style
         const finalPrompt = styleKeywords ? `${prompt}, ${styleKeywords}` : prompt;
         const encodedPrompt = encodeURIComponent(finalPrompt);
 
@@ -35,43 +35,30 @@ module.exports = async (req, res) => {
         const seed = Math.floor(Math.random() * 999999);
         const pollinationUrl = `https://pollinations.ai/p/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
 
-        console.log(`Generating image via Pollinations: ${pollinationUrl} (Style: ${req.body.style || 'None'})`);
+        console.log(`Generating image URL: ${pollinationUrl}`);
 
-        const response = await axios.get(pollinationUrl, {
-            responseType: 'arraybuffer',
-            headers: {
-                // Mimic browser to avoid blocking
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'
-            },
-            timeout: 25000 // 25s timeout
-        });
-
-        // Convert binary buffer to Base64 data URL
-        const base64Image = Buffer.from(response.data, 'binary').toString('base64');
-        const imageUrl = `data:image/jpeg;base64,${base64Image}`;
-
+        // Return the URL directly. The browser will handle the loading.
         res.json({
             success: true,
-            image: imageUrl,
+            image: pollinationUrl,
             isMock: false,
             provider: 'pollinations',
             styleApplied: req.body.style
         });
 
     } catch (error) {
-        console.error('AI Generation Error:', error.message);
+        console.error('AI Processing Error:', error.message);
 
-        // ROBUST FALLBACK:
-        // Try to get 2 keywords from prompt for Unsplash
+        // ROBUST FALLBACK URL
         const fallbackKeywords = encodeURIComponent(prompt.split(' ').slice(0, 2).join(','));
-        const safeFallback = "https://images.unsplash.com/photo-1620641788421-7f1c338e85a5?w=600";
+        const safeFallback = `https://source.unsplash.com/1024x1024/?${fallbackKeywords}`;
 
         res.json({
-            success: true, // Return success so frontend displays the image
+            success: true,
             image: safeFallback,
             isMock: true,
-            error: null, // Don't trigger frontend error alert
-            message: 'AI Service Busy - Showing Fallback'
+            error: null,
+            message: 'Fallback Image'
         });
     }
 };
