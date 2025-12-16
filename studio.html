@@ -1380,11 +1380,21 @@
         }
 
         // Tab Switching
+        // Tab Switching
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.sidebar-tab').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
-            event.target.closest('.sidebar-tab').classList.add('active');
+
+            // Highlight the button
+            if (typeof event !== 'undefined' && event && event.target) {
+                const btn = event.target.closest('.sidebar-tab');
+                if (btn) btn.classList.add('active');
+            } else {
+                // Programmatic call: try to find the button matching the tabName
+                const btn = document.querySelector(`.sidebar-tab[onclick*="'${tabName}'"]`);
+                if (btn) btn.classList.add('active');
+            }
         }
 
         // Properties Panel
