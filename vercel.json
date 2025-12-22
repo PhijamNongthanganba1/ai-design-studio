@@ -1,5 +1,4 @@
 {
-    "outputDirectory": ".",
     "functions": {
         "api/*.js": {
             "maxDuration": 10
@@ -25,10 +24,6 @@
         {
             "source": "/app",
             "destination": "/studio.html"
-        },
-        {
-            "source": "/api/:match*",
-            "destination": "/api/:match*"
         }
     ]
 }

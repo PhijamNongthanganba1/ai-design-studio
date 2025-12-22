@@ -293,24 +293,13 @@
         }
 
         // Load user data
-        // Load user data
         window.addEventListener('DOMContentLoaded', () => {
-            let user = null;
-
-            // Try getting from single 'userData' (new simple login)
-            const userData = localStorage.getItem('userData');
-            if (userData) {
-                user = JSON.parse(userData);
-            }
-            // Fallback to old 'users' dictionary approach
-            else {
-                const users = JSON.parse(localStorage.getItem('users') || '{}');
-                user = users[currentUser];
-            }
+            const users = JSON.parse(localStorage.getItem('users') || '{}');
+            const user = users[currentUser];
 
             if (user) {
-                document.getElementById('userName').textContent = user.name || 'User';
-                document.getElementById('userEmail').textContent = user.email || currentUser;
+                document.getElementById('userName').textContent = user.name;
+                document.getElementById('userEmail').textContent = user.email;
                 document.getElementById('planType').textContent = user.plan ? (user.plan.charAt(0).toUpperCase() + user.plan.slice(1)) : 'Free';
                 document.getElementById('userPlan').textContent = (user.plan ? user.plan.toUpperCase() : 'FREE') + ' Plan';
 
