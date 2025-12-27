@@ -294,26 +294,30 @@
 
         // Load user data
         window.addEventListener('DOMContentLoaded', () => {
-            const users = JSON.parse(localStorage.getItem('users') || '{}');
-            const user = users[currentUser];
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
 
-            if (user) {
-                document.getElementById('userName').textContent = user.name;
-                document.getElementById('userEmail').textContent = user.email;
-                document.getElementById('planType').textContent = user.plan ? (user.plan.charAt(0).toUpperCase() + user.plan.slice(1)) : 'Free';
-                document.getElementById('userPlan').textContent = (user.plan ? user.plan.toUpperCase() : 'FREE') + ' Plan';
+            if (userData && userData.email) {
+                document.getElementById('userName').textContent = userData.name || 'User';
+                document.getElementById('userEmail').textContent = userData.email;
+                document.getElementById('planType').textContent = userData.plan ? (userData.plan.charAt(0).toUpperCase() + userData.plan.slice(1)) : 'Free';
+                document.getElementById('userPlan').textContent = (userData.plan ? userData.plan.toUpperCase() : 'FREE') + ' Plan';
 
-                if (user.plan === 'pro') {
+                if (userData.plan === 'pro') {
                     document.getElementById('userPlan').className = 'badge badge-pro';
                 }
 
-                const created = new Date(user.createdAt || Date.now());
+                // If created date is missing, use a placeholder
+                const created = new Date(userData.createdAt || Date.now());
                 document.getElementById('memberSince').textContent = created.toLocaleDateString();
                 document.getElementById('lastActive').textContent = 'Today';
 
                 loadDesigns();
+            } else {
+                // If userData is missing but currentUser exists, try to handle or logout
+                console.warn('User ID exists but userData is missing.');
             }
         });
+
 
         function loadDesigns() {
             const designs = JSON.parse(localStorage.getItem('savedDesigns') || '{}');

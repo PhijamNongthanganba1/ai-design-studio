@@ -28,34 +28,33 @@ module.exports = async (req, res) => {
         };
 
         const styleKeywords = styleMap[req.body.style] || '';
-        const finalPrompt = styleKeywords ? `${prompt}, ${styleKeywords}` : prompt;
-        const encodedPrompt = encodeURIComponent(finalPrompt);
+        const finalPrompt = styleKeywords ? `${prompt} ${styleKeywords}` : prompt; // Simplified spacing
+        const encodedPrompt = encodeURIComponent(finalPrompt.trim());
 
         // Add random seed to URL to ensure unique images for same prompt
         const seed = Math.floor(Math.random() * 999999);
-        const pollinationUrl = `https://pollinations.ai/p/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
+        const pollinationUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${width}&height=${height}&seed=${seed}&nologo=true`;
 
-        console.log(`Generating image URL: ${pollinationUrl}`);
+        console.log(`[Backend] Pollination URL: ${pollinationUrl}`);
 
-        // FIX CORS ISSUE: Wrap via wsrv.nl (standard public image proxy)
-        // This ensures Access-Control-Allow-Origin: * headers are present so canvas works.
-        const proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(pollinationUrl)}&output=jpg`;
-
+        // Pollinations.ai supports CORS (*), so we DON'T need a proxy.
+        // Direct access is faster and more reliable.
         res.json({
             success: true,
-            image: proxyUrl, // Send the proxied URL
+            image: pollinationUrl,
             original: pollinationUrl,
             isMock: false,
-            provider: 'pollinations',
-            styleApplied: req.body.style
+            provider: 'pollinations'
         });
+
+
 
     } catch (error) {
         console.error('AI Processing Error:', error.message);
 
         // ROBUST FALLBACK URL (Using Unsplash + Proxy just in case)
         const fallbackKeywords = encodeURIComponent(prompt.split(' ').slice(0, 2).join(','));
-        const unsplashUrl = `https://source.unsplash.com/1024x1024/?${fallbackKeywords}`;
+        const unsplashUrl = `https://images.unsplash.com/photo-1506744038136-46273834b3fb?q=80&w=1024&auto=format&fit=crop`; // Specific reliable image
         const safeFallback = `https://wsrv.nl/?url=${encodeURIComponent(unsplashUrl)}&output=jpg`;
 
         res.json({

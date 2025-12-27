@@ -1,47 +1,95 @@
 require('dotenv').config();
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
+
+// Warning if MONGODB_URI is missing
+if (!process.env.MONGODB_URI) {
+    console.warn('⚠️  WARNING: MONGODB_URI is not set in .env file.');
+    console.warn('   Database features (login/signup) will fail.');
+}
 
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// Serve Static Files (Frontend)
+
+// Request Logging
+app.use((req, res, next) => {
+    if (req.method !== 'OPTIONS') {
+        console.log(`[${req.method}] ${req.url}`);
+    }
+    next();
+});
+
+// Security/CORS Headers
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, DELETE');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    if (req.method === 'OPTIONS') return res.sendStatus(200);
+    next();
+});
+
+// 1. Dynamic API Mounting (Simulates Vercel /api/*.js)
+const apiDir = path.join(__dirname, 'api');
+if (fs.existsSync(apiDir)) {
+    fs.readdirSync(apiDir).forEach(file => {
+        if (file.endsWith('.js')) {
+            const routeName = `/api/${file.replace('.js', '')}`;
+            const handler = require(path.join(apiDir, file));
+
+            app.post(routeName, async (req, res) => {
+                try {
+                    await handler(req, res);
+                } catch (err) {
+                    console.error(`Error in ${routeName}:`, err);
+                    if (!res.headersSent) res.status(500).json({ error: 'Internal Server Error' });
+                }
+            });
+
+            // Some might be GET (like /api/health)
+            if (file === 'health.js') {
+                app.get(routeName, async (req, res) => {
+                    try { await handler(req, res); } catch (err) { res.status(500).send('Error'); }
+                });
+            }
+        }
+    });
+    console.log(`🚀 Mounted APIs from /api folder`);
+}
+
+// 2. Vercel-style Rewrites
+const rewrites = [
+    { source: '/login', dest: 'login.html' },
+    { source: '/signup', dest: 'signup.html' },
+    { source: '/dashboard', dest: 'dashboard.html' },
+    { source: '/app', dest: 'studio.html' }
+];
+
+rewrites.forEach(rw => {
+    app.get(rw.source, (req, res) => res.sendFile(path.join(__dirname, rw.dest)));
+});
+
+// 3. Static Files (Root level)
 app.use(express.static(path.join(__dirname, '.')));
 
-// API Routes Adapter
-const apiAdapter = (handler) => async (req, res) => {
-    try {
-        await handler(req, res);
-    } catch (err) {
-        console.error('API Error:', err);
-        if (!res.headersSent) {
-            res.status(500).json({ error: 'Internal Server Error' });
-        }
+// 4. Fallback Routing
+app.get('*', (req, res) => {
+    if (req.path.startsWith('/api')) {
+        return res.status(404).json({ error: 'API endpoint not found' });
     }
-};
-
-// Mount API Endpoints
-app.post('/api/login', apiAdapter(require('./api/login.js')));
-app.post('/api/signup', apiAdapter(require('./api/signup.js')));
-app.post('/api/generate-image', apiAdapter(require('./api/generate-image.js')));
-app.post('/api/remove-background', apiAdapter(require('./api/remove-background.js')));
-app.get('/api/health', apiAdapter(require('./api/health.js')));
-
-// Catch-all for basic routing
-// Using app.use instead of app.get('*') for compatibility
-app.use((req, res) => {
-    if (!req.path.startsWith('/api')) {
-        res.sendFile(path.join(__dirname, 'index.html'));
-    } else {
-        res.status(404).json({ error: 'Endpoint not found' });
-    }
+    // Default to login page if nothing else matches (index.html also redirects to login)
+    res.sendFile(path.join(__dirname, 'login.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`✅ Server running locally at http://localhost:${PORT}`);
-    console.log(`   - Static files served from root`);
-    console.log(`   - APIs mounted at /api/*`);
+    console.log(`\n✅ Server is running!`);
+    console.log(`🔗 Local URL: http://localhost:${PORT}`);
+    console.log(`📂 Static files: Serving from root`);
+    console.log(`🛠️  API routes: Active at /api/*`);
+    console.log(`\nPress Ctrl+C to stop the server.\n`);
 });
+

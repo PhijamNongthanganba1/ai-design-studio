@@ -214,6 +214,17 @@
                     body: JSON.stringify({ email, password })
                 });
 
+                if (!response.ok) {
+                    const text = await response.text();
+                    try {
+                        const errData = JSON.parse(text);
+                        showAlert(errData.error || 'Server error', 'error');
+                    } catch (e) {
+                        showAlert('Server error (Invalid response)', 'error');
+                    }
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (data.success) {

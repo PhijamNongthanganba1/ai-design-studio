@@ -34,6 +34,11 @@ module.exports = async (req, res) => {
         }
     } catch (error) {
         console.error('Login error:', error);
+        if (error.message.includes('timeout') || error.message.includes('Topology') || error.message.includes('ReplicaSetNoPrimary')) {
+            return res.status(500).json({
+                error: 'Database connection failed. Please ensure your IP is whitelisted in MongoDB Atlas Network Access.'
+            });
+        }
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };
