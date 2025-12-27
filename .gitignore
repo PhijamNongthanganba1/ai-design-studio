@@ -3,3 +3,9 @@
 .env*.local
 node_modules
 .DS_Store
+
+# Ignore test and temporary files
+test_*
+update_key.js
+run.cmd
+*.log
