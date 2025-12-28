@@ -4,26 +4,29 @@
             "maxDuration": 10
         }
     },
+    "alias": [
+        "nongaistudio.vercel.app"
+    ],
     "rewrites": [
         {
             "source": "/",
-            "destination": "/login.html"
+            "destination": "/public/login.html"
         },
         {
             "source": "/login",
-            "destination": "/login.html"
+            "destination": "/public/login.html"
         },
         {
             "source": "/signup",
-            "destination": "/signup.html"
+            "destination": "/public/signup.html"
         },
         {
             "source": "/dashboard",
-            "destination": "/dashboard.html"
+            "destination": "/public/dashboard.html"
         },
         {
             "source": "/app",
-            "destination": "/studio.html"
+            "destination": "/public/studio.html"
         }
     ]
 }

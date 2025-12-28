@@ -63,26 +63,26 @@ if (fs.existsSync(apiDir)) {
 
 // 2. Vercel-style Rewrites
 const rewrites = [
-    { source: '/login', dest: 'login.html' },
-    { source: '/signup', dest: 'signup.html' },
-    { source: '/dashboard', dest: 'dashboard.html' },
-    { source: '/app', dest: 'studio.html' }
+    { source: '/login', dest: 'public/login.html' },
+    { source: '/signup', dest: 'public/signup.html' },
+    { source: '/dashboard', dest: 'public/dashboard.html' },
+    { source: '/app', dest: 'public/studio.html' }
 ];
 
 rewrites.forEach(rw => {
     app.get(rw.source, (req, res) => res.sendFile(path.join(__dirname, rw.dest)));
 });
 
-// 3. Static Files (Root level)
-app.use(express.static(path.join(__dirname, '.')));
+// 3. Static Files (Public folder)
+app.use(express.static(path.join(__dirname, 'public')));
 
 // 4. Fallback Routing
 app.get('*', (req, res) => {
     if (req.path.startsWith('/api')) {
         return res.status(404).json({ error: 'API endpoint not found' });
     }
-    // Default to login page if nothing else matches (index.html also redirects to login)
-    res.sendFile(path.join(__dirname, 'login.html'));
+    // Default to login page
+    res.sendFile(path.join(__dirname, 'public/login.html'));
 });
 
 app.listen(PORT, () => {
