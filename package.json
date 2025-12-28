@@ -4,8 +4,7 @@
   "private": true,
   "description": "AI Design Studio - Vercel Deployment with MongoDB",
   "scripts": {
-    "start": "node local_server.js",
-    "build": "echo 'No build step required'"
+    "start": "node local_server.js"
   },
   "dependencies": {
     "axios": "^1.6.2",
