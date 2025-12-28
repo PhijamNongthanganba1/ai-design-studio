@@ -13,6 +13,13 @@ module.exports = async (req, res) => {
     if (req.method === 'OPTIONS') return res.status(200).end();
     if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
+    if (!process.env.MONGODB_URI) {
+        console.error('CRITICAL: MONGODB_URI is not defined');
+        return res.status(500).json({
+            error: 'Configuration Error: MONGODB_URI is missing from Vercel Environment Variables.'
+        });
+    }
+
     try {
         const { email, password } = req.body;
         if (!email || !password) return res.status(400).json({ error: 'Missing fields' });
@@ -34,11 +41,11 @@ module.exports = async (req, res) => {
         }
     } catch (error) {
         console.error('Login error:', error);
-        if (error.message.includes('timeout') || error.message.includes('Topology') || error.message.includes('ReplicaSetNoPrimary')) {
-            return res.status(500).json({
-                error: 'Database connection failed. Please ensure your IP is whitelisted in MongoDB Atlas Network Access.'
-            });
-        }
-        res.status(500).json({ error: 'Internal Server Error' });
+        // Return actual error message for debugging (remove in production)
+        res.status(500).json({
+            error: 'Database Connection Failed',
+            details: error.message,
+            hint: 'Check MongoDB Atlas Network Access (IP Whitelist)'
+        });
     }
 };
