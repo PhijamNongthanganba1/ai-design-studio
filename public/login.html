@@ -235,7 +235,7 @@
                     localStorage.setItem('loginTime', new Date().toISOString());
 
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/dashboard';
                     }, 1000);
                 } else {
                     showAlert(data.error || 'Invalid email or password', 'error');
@@ -250,7 +250,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             const currentUser = localStorage.getItem('currentUser');
             if (currentUser) {
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
             }
         });
     </script>

@@ -256,7 +256,7 @@
                     localStorage.setItem('userData', JSON.stringify({ name, email, plan: 'free' }));
 
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/dashboard';
                     }, 1500);
                 } else {
                     showAlert(data.error || 'Signup failed', 'error');

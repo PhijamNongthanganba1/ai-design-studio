@@ -289,7 +289,7 @@
         // Check authentication
         const currentUser = localStorage.getItem('currentUser');
         if (!currentUser) {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         }
 
         // Load user data
@@ -341,19 +341,19 @@
         }
 
         function goToApp() {
-            window.location.href = 'studio.html';
+            window.location.href = '/app';
         }
 
         function openDesign(id) {
             localStorage.setItem('loadDesignId', id);
-            window.location.href = 'studio.html';
+            window.location.href = '/app';
         }
 
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('currentUser');
                 localStorage.removeItem('loginTime');
-                window.location.href = 'login.html';
+                window.location.href = '/login';
             }
         }
 
