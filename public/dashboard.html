@@ -289,42 +289,35 @@
         // Check authentication
         const currentUser = localStorage.getItem('currentUser');
         if (!currentUser) {
-            window.location.href = 'login.html';
+            window.location.href = '/login';
         }
 
         // Load user data
-        // Load user data
         window.addEventListener('DOMContentLoaded', () => {
-            let user = null;
+            const userData = JSON.parse(localStorage.getItem('userData') || '{}');
 
-            // Try getting from single 'userData' (new simple login)
-            const userData = localStorage.getItem('userData');
-            if (userData) {
-                user = JSON.parse(userData);
-            }
-            // Fallback to old 'users' dictionary approach
-            else {
-                const users = JSON.parse(localStorage.getItem('users') || '{}');
-                user = users[currentUser];
-            }
+            if (userData && userData.email) {
+                document.getElementById('userName').textContent = userData.name || 'User';
+                document.getElementById('userEmail').textContent = userData.email;
+                document.getElementById('planType').textContent = userData.plan ? (userData.plan.charAt(0).toUpperCase() + userData.plan.slice(1)) : 'Free';
+                document.getElementById('userPlan').textContent = (userData.plan ? userData.plan.toUpperCase() : 'FREE') + ' Plan';
 
-            if (user) {
-                document.getElementById('userName').textContent = user.name || 'User';
-                document.getElementById('userEmail').textContent = user.email || currentUser;
-                document.getElementById('planType').textContent = user.plan ? (user.plan.charAt(0).toUpperCase() + user.plan.slice(1)) : 'Free';
-                document.getElementById('userPlan').textContent = (user.plan ? user.plan.toUpperCase() : 'FREE') + ' Plan';
-
-                if (user.plan === 'pro') {
+                if (userData.plan === 'pro') {
                     document.getElementById('userPlan').className = 'badge badge-pro';
                 }
 
-                const created = new Date(user.createdAt || Date.now());
+                // If created date is missing, use a placeholder
+                const created = new Date(userData.createdAt || Date.now());
                 document.getElementById('memberSince').textContent = created.toLocaleDateString();
                 document.getElementById('lastActive').textContent = 'Today';
 
                 loadDesigns();
+            } else {
+                // If userData is missing but currentUser exists, try to handle or logout
+                console.warn('User ID exists but userData is missing.');
             }
         });
+
 
         function loadDesigns() {
             const designs = JSON.parse(localStorage.getItem('savedDesigns') || '{}');
@@ -348,19 +341,19 @@
         }
 
         function goToApp() {
-            window.location.href = 'studio.html';
+            window.location.href = '/app';
         }
 
         function openDesign(id) {
             localStorage.setItem('loadDesignId', id);
-            window.location.href = 'studio.html';
+            window.location.href = '/app';
         }
 
         function logout() {
             if (confirm('Are you sure you want to logout?')) {
                 localStorage.removeItem('currentUser');
                 localStorage.removeItem('loginTime');
-                window.location.href = 'login.html';
+                window.location.href = '/login';
             }
         }
 

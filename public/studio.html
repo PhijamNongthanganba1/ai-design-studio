@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 Nongthang's Studio - AI Design Pro</title>
+    <title>🚀 ULTRA AI Design Studio Pro - Complete Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
@@ -56,6 +56,7 @@
             font-weight: 800;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-right: 20px;
         }
@@ -200,6 +201,7 @@
             margin-bottom: 10px;
             background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
             -webkit-background-clip: text;
+            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -450,14 +452,12 @@
 <body>
     <div class="app">
         <div class="toolbar">
-            <div class="logo" onclick="window.location.href='dashboard.html'" style="cursor: pointer;"
-                title="Go to Dashboard">
-                <img src="https://i.ibb.co/6PqDq0v/stylish-n-logo.png"
-                    style="height: 30px; vertical-align: middle; margin-right: 10px; border-radius: 5px;" alt="N Logo">
-                Nongthang's Studio
-            </div>
-            <button class="btn" onclick="addText()"><i class="fas fa-font"></i> Text</button>
-            <button class="btn" onclick="addShape('rectangle')"><i class="fas fa-square"></i></button>
+            <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="logo essential"><i class="fas fa-wand-magic-sparkles"></i> ULTRA AI Studio</div>
+            <button class="btn essential" onclick="addText()"><i class="fas fa-font"></i> Text</button>
+            <button class="btn essential" onclick="addShape('rectangle')"><i class="fas fa-square"></i></button>
             <button class="btn" onclick="addShape('circle')"><i class="fas fa-circle"></i></button>
             <div class="divider"></div>
             <button class="btn" onclick="deleteSelected()"><i class="fas fa-trash"></i></button>
@@ -472,8 +472,9 @@
             </div>
             <div style="margin-left: auto;"></div>
             <button class="btn" onclick="showSavedDesigns()"><i class="fas fa-folder-open"></i> Open</button>
-            <button class="btn" onclick="saveDesign()"><i class="fas fa-save"></i> Save</button>
-            <button class="btn btn-primary" onclick="showExportModal()"><i class="fas fa-download"></i> Export</button>
+            <button class="btn essential" onclick="saveDesign()"><i class="fas fa-save"></i> Save</button>
+            <button class="btn btn-primary essential" onclick="showExportModal()"><i class="fas fa-download"></i>
+                Export</button>
         </div>
         <div class="main">
             <!-- Left Sidebar -->
@@ -554,6 +555,9 @@
                             onclick="createAIVideo()">
                             <i class="fas fa-video"></i> Create AI Video
                         </button>
+                        <div id="aiStudioStatus"
+                            style="margin-top: 15px; text-align: center; font-size: 13px; color: var(--text-muted);">
+                        </div>
                     </div>
 
                     <!-- CV Builder Tab -->
@@ -705,9 +709,18 @@
 
     <script>
         // Configuration
-        const API_URL = '';  // Empty for relative paths (works both locally and on Vercel)
+        const API_URL = ''; // Relative paths
         let canvas, history = [], historyStep = 0, currentDesignId = null;
         let selectedStyle = 'enhance';
+
+        // Connectivity Diagnostic
+        window.addEventListener('load', () => {
+            if (window.location.protocol === 'file:') {
+                alert('⚠️ IMPORTANT: You are opening this file directly.\n\nAI features REQUIRE the local server to be running. Please access the app at http://localhost:3000 instead.');
+            }
+            console.log('[Diagnostic] App started at:', window.location.href);
+            console.log('[Diagnostic] API_URL base:', API_URL || '(relative)');
+        });
 
         // Upload Manager Class
         class UploadManager {
@@ -835,7 +848,7 @@
         // Canvas Manager Adapter
         const canvasManager = {
             addImage: (url, options) => {
-                fabric.Image.fromURL(url, (img) => {
+                loadImageFromURL(url, (img) => {
                     if (options) {
                         img.set(options);
                     } else {
@@ -850,6 +863,59 @@
                 });
             }
         };
+
+        // ROBUST IMAGE LOADER (Fixes CORS/Tainted Canvas)
+        async function loadImageFromURL(url, callback, options = {}) {
+            console.log('[ImageLoader] Attempting to load:', url);
+
+            if (url.startsWith('data:')) {
+                console.log('[ImageLoader] Loading as DataURL');
+                fabric.Image.fromURL(url, (img) => {
+                    if (img) callback(img);
+                    else alert('❌ Error processing image data');
+                }, options);
+                return;
+            }
+
+            try {
+                console.log('[ImageLoader] Method 1: Fetching as Blob (CORS)');
+                const response = await fetch(url, { mode: 'cors' });
+                if (!response.ok) {
+                    console.error('[ImageLoader] Fetch failed with status:', response.status);
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const blob = await response.blob();
+                console.log('[ImageLoader] Blob received, size:', blob.size);
+                const blobUrl = URL.createObjectURL(blob);
+
+                fabric.Image.fromURL(blobUrl, (img) => {
+                    if (img) {
+                        console.log('[ImageLoader] Fabric parsed blob successfully');
+                        img.set('crossOrigin', 'anonymous');
+                        callback(img);
+                        setTimeout(() => URL.revokeObjectURL(blobUrl), 1000);
+                    } else {
+                        throw new Error('Fabric failed to parse blob');
+                    }
+                }, options);
+
+            } catch (error) {
+                console.warn('[ImageLoader] Method 1 failed, falling back to Method 2 (Direct):', error.message);
+
+                fabric.Image.fromURL(url, (img, isError) => {
+                    if (isError || !img) {
+                        console.error('[ImageLoader] Method 2 failed for:', url);
+                        alert(`❌ AI Feature Failure: Image could not be loaded.\n\nTechnical details: ${error.message}\n\nPlease check your internet connection and try again.`);
+                    } else {
+                        console.log('[ImageLoader] Method 2 (Direct) success');
+                        callback(img);
+                    }
+                }, { ...options, crossOrigin: 'anonymous' });
+            }
+        }
+
+
 
         // Initialize Canvas
         window.addEventListener('DOMContentLoaded', () => {
@@ -896,6 +962,18 @@
                 });
             });
         });
+
+        // Mobile Sidebar Toggle
+        function toggleMobileSidebar() {
+            const sidebar = document.querySelector('.sidebar');
+            const toggle = document.querySelector('.mobile-sidebar-toggle i');
+            sidebar.classList.toggle('active');
+            if (sidebar.classList.contains('active')) {
+                toggle.className = 'fas fa-times';
+            } else {
+                toggle.className = 'fas fa-bars';
+            }
+        }
 
         // Basic Canvas Functions
         function addText() {
@@ -1003,101 +1081,6 @@
             saveState();
         }
 
-        function loadCVTemplate(style) {
-            canvas.clear();
-            // A4 Size @ 96 DPI approx (794x1123)
-            canvas.setDimensions({ width: 794, height: 1123 });
-            canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
-
-            if (style === 'professional') {
-                // Header Background
-                const headerBg = new fabric.Rect({
-                    left: 0, top: 0, width: 794, height: 200,
-                    fill: '#2c3e50', selectable: false
-                });
-
-                // Name
-                const name = new fabric.IText('YOUR NAME', {
-                    left: 50, top: 60,
-                    fontSize: 40, fontFamily: 'Inter', fontWeight: 'bold', fill: '#ffffff'
-                });
-
-                // Title
-                const title = new fabric.IText('Professional Job Title', {
-                    left: 50, top: 110,
-                    fontSize: 24, fontFamily: 'Inter', fill: '#a0aec0'
-                });
-
-                // Contact Info
-                const contact = new fabric.IText('email@example.com | +123 456 7890 | city, country', {
-                    left: 50, top: 150,
-                    fontSize: 16, fontFamily: 'Inter', fill: '#cbd5e0'
-                });
-
-                // Section: Experience
-                const expHeader = new fabric.IText('EXPERIENCE', {
-                    left: 50, top: 250,
-                    fontSize: 20, fontFamily: 'Inter', fontWeight: 'bold', fill: '#2c3e50'
-                });
-                const expLine = new fabric.Rect({
-                    left: 50, top: 275, width: 694, height: 2, fill: '#2c3e50'
-                });
-
-                const expItem = new fabric.IText('Job Title | Company Name\n2020 - Present\n\n• Achieved X, Y, and Z results.\n• Led a team of 5 designers.\n• Improved efficiency by 20%.', {
-                    left: 50, top: 290,
-                    fontSize: 14, fontFamily: 'Inter', fill: '#4a5568', lineHeight: 1.5,
-                    width: 600, splitByGrapheme: true
-                });
-
-                // Section: Education
-                const eduHeader = new fabric.IText('EDUCATION', {
-                    left: 50, top: 500,
-                    fontSize: 20, fontFamily: 'Inter', fontWeight: 'bold', fill: '#2c3e50'
-                });
-                const eduLine = new fabric.Rect({
-                    left: 50, top: 525, width: 694, height: 2, fill: '#2c3e50'
-                });
-                const eduItem = new fabric.IText('Degree Name | University Name\n2016 - 2020\n\nGraduated with Honors.', {
-                    left: 50, top: 540,
-                    fontSize: 14, fontFamily: 'Inter', fill: '#4a5568', lineHeight: 1.5
-                });
-
-                canvas.add(headerBg, name, title, contact, expHeader, expLine, expItem, eduHeader, eduLine, eduItem);
-            } else {
-                // Creative Style (Modern Sidebar)
-                const sidebar = new fabric.Rect({
-                    left: 0, top: 0, width: 250, height: 1123,
-                    fill: '#f7fafc', selectable: false
-                });
-
-                const name = new fabric.IText('ALEX\nDESIGNER', {
-                    left: 300, top: 50,
-                    fontSize: 60, fontFamily: 'Inter', fontWeight: '900', fill: '#2d3748', lineHeight: 0.9
-                });
-
-                const aboutTitle = new fabric.IText('ABOUT ME', { left: 40, top: 50, fontSize: 18, fontWeight: 'bold', fill: '#2d3748' });
-                const aboutText = new fabric.IText('Creative designer with a passion\nfor visual storytelling.', {
-                    left: 40, top: 80, fontSize: 14, fill: '#4a5568', width: 200, splitByGrapheme: true
-                });
-
-                const skillTitle = new fabric.IText('SKILLS', { left: 40, top: 200, fontSize: 18, fontWeight: 'bold', fill: '#2d3748' });
-                const skillText = new fabric.IText('• Photoshop\n• Illustrator\n• UI/UX Design\n• Marketing', {
-                    left: 40, top: 230, fontSize: 14, fill: '#4a5568', width: 200, splitByGrapheme: true
-                });
-
-                canvas.add(sidebar, name, aboutTitle, aboutText, skillTitle, skillText);
-            }
-
-            saveState();
-            document.getElementById('canvasWidth').value = canvas.width;
-            document.getElementById('canvasHeight').value = canvas.height;
-        }
-
-        function showCVBuilder() {
-            showTab('cv-builder');
-            loadCVTemplate('professional');
-        }
-
         // AI Features
         function showAIImageModal() { document.getElementById('aiImageModal').style.display = 'flex'; }
         function closeAIImageModal() { document.getElementById('aiImageModal').style.display = 'none'; document.getElementById('aiImageStatus').innerHTML = ''; }
@@ -1115,39 +1098,18 @@
                 });
                 const data = await response.json();
                 console.log('[AI Image] Response:', data);
-
                 if (data.success) {
-                    // Check if it was a fallback
-                    if (data.isMock) {
-                        alert('⚠️ Note: Using Mock Image (No API Key found).\nFor real AI, add HUGGINGFACE_API_KEY to your .env file.');
-                    }
-
-                    // Use native Image loader for better reliability with Redirects/CORS
-                    const imgObj = new Image();
-                    imgObj.crossOrigin = 'anonymous';
-                    imgObj.onload = function () {
-                        const img = new fabric.Image(imgObj);
-                        statusDiv.innerHTML = ''; // Clear loading status
-
-                        // Scale logic
-                        const scale = Math.min(400 / img.width, (canvas.height * 0.5) / img.height);
-                        img.scale(scale);
-
+                    loadImageFromURL(data.image, (img) => {
+                        img.scaleToWidth(Math.min(400, canvas.width * 0.5));
                         img.set({
-                            left: canvas.width / 2 - (img.width * scale) / 2,
-                            top: canvas.height / 2 - (img.height * scale) / 2
+                            left: canvas.width / 2 - img.getScaledWidth() / 2,
+                            top: canvas.height / 2 - img.getScaledHeight() / 2
                         });
-
                         canvas.add(img).setActiveObject(img).renderAll();
                         saveState();
                         closeAIImageModal();
-                        statusDiv.innerHTML = '✅ Success! Image Added.';
-                    };
-                    imgObj.onerror = function () {
-                        statusDiv.innerHTML = '❌ Failed to load image (CORS/Network)';
-                    };
-                    // Add timestamp to prevent caching issues
-                    imgObj.src = data.image + "&t=" + new Date().getTime();
+                        statusDiv.innerHTML = '✅ Success!';
+                    });
                 } else {
                     statusDiv.innerHTML = `❌ Error: ${data.error}`;
                 }
@@ -1164,26 +1126,24 @@
                 alert('⚠️ Please select an IMAGE first!');
                 return;
             }
+            const statusDiv = document.getElementById('aiStudioStatus');
+            statusDiv.innerHTML = '<div class="loading"></div> Removing background...';
+
             const originalOpacity = active.opacity;
             active.set('opacity', 0.5);
             canvas.renderAll();
+
             try {
-                const dataUrl = active.toDataURL({ format: 'png' });
-                const blob = await (await fetch(dataUrl)).blob();
-                const formData = new FormData();
-                formData.append('image', blob, 'image.png');
+                const imageUrl = active.toDataURL({ format: 'png', quality: 0.8 });
                 const response = await fetch(`${API_URL}/api/remove-background`, {
                     method: 'POST',
-                    body: formData
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageUrl })
                 });
                 const data = await response.json();
                 if (data.success) {
-                    fabric.Image.fromURL(data.image, (img) => {
-                        if (!img) {
-                            active.set('opacity', originalOpacity);
-                            canvas.renderAll();
-                            return;
-                        }
+                    statusDiv.innerHTML = '✨ Processing result...';
+                    loadImageFromURL(data.image, (img) => {
                         img.set({
                             left: active.left,
                             top: active.top,
@@ -1194,30 +1154,73 @@
                         canvas.add(img).setActiveObject(img);
                         canvas.renderAll();
                         saveState();
-                        alert(data.isMock ? '✅ BG Removed (Mock)' : '✅ BG Removed!');
+                        statusDiv.innerHTML = '✅ Background removed!';
+                        setTimeout(() => statusDiv.innerHTML = '', 3000);
                     });
                 } else {
                     active.set('opacity', originalOpacity);
                     canvas.renderAll();
-                    alert('❌ Error');
+                    statusDiv.innerHTML = `❌ Error: ${data.error || 'Failed'}`;
                 }
             } catch (error) {
                 active.set('opacity', originalOpacity);
                 canvas.renderAll();
-                alert('❌ Backend error');
+                statusDiv.innerHTML = '❌ Connection Error';
+                console.error('[BG Remove] Error:', error);
             }
         }
+
         async function upscaleImage() {
             const active = canvas.getActiveObject();
             if (!active || active.type !== 'image') {
                 alert('⚠️ Please select an IMAGE first!');
                 return;
             }
-            if (confirm('Backend is removed. Mock upscale?')) {
-                // allow user to just see an alert
-                alert('✅ Upscaled 4x (Mock)!');
+            const statusDiv = document.getElementById('aiStudioStatus');
+            statusDiv.innerHTML = '<div class="loading"></div> Upscaling image...';
+
+            const originalOpacity = active.opacity;
+            active.set('opacity', 0.5);
+            canvas.renderAll();
+
+            try {
+                const imageUrl = active.toDataURL({ format: 'png', quality: 0.8 });
+                const response = await fetch(`${API_URL}/api/upscale-image`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageUrl, scale: 4 })
+                });
+                const data = await response.json();
+                if (data.success) {
+                    statusDiv.innerHTML = '✨ Loading high-res...';
+                    const upscaledUrl = data.image || data.data?.output;
+                    loadImageFromURL(upscaledUrl, (img) => {
+                        img.set({
+                            left: active.left,
+                            top: active.top,
+                            scaleX: active.scaleX,
+                            scaleY: active.scaleY
+                        });
+                        canvas.remove(active);
+                        canvas.add(img).setActiveObject(img);
+                        canvas.renderAll();
+                        saveState();
+                        statusDiv.innerHTML = '✅ Upscale complete!';
+                        setTimeout(() => statusDiv.innerHTML = '', 3000);
+                    });
+                } else {
+                    active.set('opacity', originalOpacity);
+                    canvas.renderAll();
+                    statusDiv.innerHTML = `❌ Error: ${data.error || 'Failed'}`;
+                }
+            } catch (error) {
+                active.set('opacity', originalOpacity);
+                canvas.renderAll();
+                statusDiv.innerHTML = '❌ Connection Error';
+                console.error('[Upscale] Error:', error);
             }
         }
+
         function removeObject() {
             const active = canvas.getActiveObject();
             if (!active || active.type !== 'image') {
@@ -1227,8 +1230,128 @@
             alert('🔧 Smart Erase\n\nComing soon! Will use Stability AI Inpainting.');
         }
         async function createAIVideo() {
-            alert('⚠️ AI Video generation requires a backend server.');
+            console.log('[AI Video] Function triggered');
+            const active = canvas.getActiveObject();
+            if (!active || active.type !== 'image') {
+                alert('⚠️ Please select an IMAGE first!');
+                return;
+            }
+
+            const scriptText = prompt('Enter text for AI avatar to speak:', 'Hello! I am an AI avatar.');
+            if (!scriptText) return;
+
+            const statusDiv = document.getElementById('aiStudioStatus');
+            statusDiv.innerHTML = '<div class="loading"></div> Generating AI Video...<br><small>This may take up to 1 minute.</small>';
+
+            try {
+                console.log('[AI Video] Preparing image data...');
+                const imageUrl = active.toDataURL({ format: 'png', quality: 0.7 });
+
+                console.log('[AI Video] Sending request to backend...');
+                const response = await fetch(`${API_URL}/api/create-video`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ imageUrl, text: scriptText, voice: 'en-US-JennyNeural' })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    statusDiv.innerHTML = '✨ AI Video ready! Loading...';
+                    const videoUrl = data.videoUrl || data.image;
+                    if (!videoUrl) {
+                        statusDiv.innerHTML = '❌ No video URL received';
+                        return;
+                    }
+
+                    const isVideo = videoUrl.toLowerCase().endsWith('.mp4');
+                    console.log('[AI Video] Loading result:', videoUrl, 'Is MP4:', isVideo);
+
+                    if (isVideo) {
+                        const videoEle = document.createElement('video');
+                        videoEle.src = videoUrl;
+                        videoEle.crossOrigin = 'anonymous';
+                        videoEle.loop = true;
+                        videoEle.muted = true;
+                        videoEle.playsInline = true;
+
+                        // Robust Playback Handling
+                        const tryPlay = () => {
+                            const playPromise = videoEle.play();
+                            if (playPromise !== undefined) {
+                                playPromise.catch(error => {
+                                    console.warn('[AI Video] Autoplay prevented:', error);
+                                    statusDiv.innerHTML = '⚠️ Click canvas to play video';
+                                });
+                            }
+                        };
+
+                        videoEle.onloadedmetadata = () => {
+                            const fabVideo = new fabric.Image(videoEle, {
+                                left: active.left + 50,
+                                top: active.top + 50,
+                                objectCaching: false
+                            });
+
+                            fabVideo.scaleToWidth(Math.min(300, canvas.width * 0.4));
+                            canvas.add(fabVideo).setActiveObject(fabVideo);
+                            tryPlay();
+
+                            if (!window.canvasRefreshLoop) {
+                                window.canvasRefreshLoop = true;
+                                fabric.util.requestAnimFrame(function render() {
+                                    canvas.renderAll();
+                                    fabric.util.requestAnimFrame(render);
+                                });
+                            }
+
+                            saveState();
+                            const successMsg = data.isMock ? '✅ Video created (DEMO)!' : '✅ Video created!';
+                            statusDiv.innerHTML = successMsg;
+
+                            if (data.isMock) {
+                                alert('ℹ️ DEMO MODE ACTIVE\n\nSince no D-ID API Key is configured, we generated a sample video using a demo avatar.\n\nTo generate real videos with YOUR image, add a valid DID_API_KEY to the .env file and use a public image URL.');
+                            }
+
+                            setTimeout(() => statusDiv.innerHTML = '', 5000);
+                        };
+
+                        videoEle.onerror = (e) => {
+                            const err = videoEle.error;
+                            const errDetails = err ? `${err.code} - ${err.message}` : 'Unknown';
+                            statusDiv.innerHTML = `❌ Video load failed: ${errDetails}`;
+                            console.error('[AI Video] Video element error:', err);
+                            alert(`❌ Failed to load video.\n\nError Code: ${errDetails}\nURL: ${videoUrl}\n\nCheck your internet connection or if the URL is blocked.`);
+                        };
+                    } else {
+                        loadImageFromURL(videoUrl, (img) => {
+                            if (!img) {
+                                statusDiv.innerHTML = '❌ Result load failed';
+                                return;
+                            }
+                            img.scaleToWidth(Math.min(300, canvas.width * 0.4));
+                            img.set({ left: active.left + 50, top: active.top + 50 });
+                            canvas.add(img).setActiveObject(img).renderAll();
+                            saveState();
+                            statusDiv.innerHTML = '✅ Result added!';
+                            setTimeout(() => statusDiv.innerHTML = '', 3000);
+                        });
+                    }
+                } else {
+                    const errorMsg = data.details || data.error || 'Failed';
+                    statusDiv.innerHTML = `❌ Error: ${errorMsg}`;
+                    if (data.hint) {
+                        alert(`⚠️ AI Video Issue\n\n${errorMsg}\n\nHint: ${data.hint}`);
+                    } else {
+                        alert(`❌ Error: ${errorMsg}`);
+                    }
+                }
+            } catch (error) {
+                statusDiv.innerHTML = '❌ Connection Error';
+                console.error('[AI Video] Fatal error:', error);
+                alert('❌ AI Video Error: ' + error.message);
+            }
         }
+
 
         // Resume Builder Implementation
         const resumeTemplates = {
@@ -1312,16 +1435,37 @@
             }
 
             const originalText = active.text;
-            active.set('text', originalText + '\n\n⏳ Generating (Mock)...');
+            active.set('text', originalText + '\n\n⏳ Generating AI content...');
             canvas.renderAll();
 
-            setTimeout(() => {
-                const mockText = "This is a simulated AI text response.\nIt demonstrates the layout without a backend.";
-                active.set('text', originalText + '\n\n' + mockText);
+            try {
+                const response = await fetch(`${API_URL}/api/generate-content`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        type: 'resume',
+                        context: 'Generate a professional resume summary or achievement bullet point'
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    active.set('text', originalText + '\n\n' + data.content);
+                    canvas.renderAll();
+                    saveState();
+                    const msg = data.isMock ? '✅ AI content added (Mock Mode)!' : '✅ AI content added!';
+                    alert(msg);
+                } else {
+                    active.set('text', originalText);
+                    canvas.renderAll();
+                    alert('❌ Failed to generate content');
+                }
+            } catch (error) {
+                active.set('text', originalText);
                 canvas.renderAll();
-                saveState();
-                alert('✅ AI content added (Mock)!');
-            }, 1000);
+                console.error(error);
+                alert('❌ Error connecting to AI service');
+            }
         }
 
         // Save/Load/Export
@@ -1402,21 +1546,11 @@
         }
 
         // Tab Switching
-        // Tab Switching
         function showTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.sidebar-tab').forEach(btn => btn.classList.remove('active'));
             document.getElementById(tabName).classList.add('active');
-
-            // Highlight the button
-            if (typeof event !== 'undefined' && event && event.target) {
-                const btn = event.target.closest('.sidebar-tab');
-                if (btn) btn.classList.add('active');
-            } else {
-                // Programmatic call: try to find the button matching the tabName
-                const btn = document.querySelector(`.sidebar-tab[onclick*="'${tabName}'"]`);
-                if (btn) btn.classList.add('active');
-            }
+            event.target.closest('.sidebar-tab').classList.add('active');
         }
 
         // Properties Panel

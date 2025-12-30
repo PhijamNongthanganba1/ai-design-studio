@@ -236,6 +236,17 @@
                     body: JSON.stringify({ name, email, password })
                 });
 
+                if (!response.ok) {
+                    const text = await response.text();
+                    try {
+                        const errData = JSON.parse(text);
+                        showAlert(errData.error || 'Server error', 'error');
+                    } catch (e) {
+                        showAlert('Server error (Invalid response)', 'error');
+                    }
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (data.success) {
@@ -245,7 +256,7 @@
                     localStorage.setItem('userData', JSON.stringify({ name, email, plan: 'free' }));
 
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/dashboard';
                     }, 1500);
                 } else {
                     showAlert(data.error || 'Signup failed', 'error');

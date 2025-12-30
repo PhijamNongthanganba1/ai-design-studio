@@ -214,6 +214,17 @@
                     body: JSON.stringify({ email, password })
                 });
 
+                if (!response.ok) {
+                    const text = await response.text();
+                    try {
+                        const errData = JSON.parse(text);
+                        showAlert(errData.error || 'Server error', 'error');
+                    } catch (e) {
+                        showAlert('Server error (Invalid response)', 'error');
+                    }
+                    return;
+                }
+
                 const data = await response.json();
 
                 if (data.success) {
@@ -224,7 +235,7 @@
                     localStorage.setItem('loginTime', new Date().toISOString());
 
                     setTimeout(() => {
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/dashboard';
                     }, 1000);
                 } else {
                     showAlert(data.error || 'Invalid email or password', 'error');
@@ -239,7 +250,7 @@
         window.addEventListener('DOMContentLoaded', () => {
             const currentUser = localStorage.getItem('currentUser');
             if (currentUser) {
-                window.location.href = 'dashboard.html';
+                window.location.href = '/dashboard';
             }
         });
     </script>
