@@ -77,7 +77,7 @@ rewrites.forEach(rw => {
 app.use(express.static(path.join(__dirname, 'public')));
 
 // 4. Fallback Routing
-app.get('*', (req, res) => {
+app.use((req, res) => {
     if (req.path.startsWith('/api')) {
         return res.status(404).json({ error: 'API endpoint not found' });
     }
