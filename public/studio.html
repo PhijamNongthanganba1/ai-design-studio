@@ -446,35 +446,120 @@
         .upload-item:hover .delete-upload-btn {
             opacity: 1;
         }
+
+        /* Mobile Responsive Styles */
+        .mobile-sidebar-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .mobile-properties-toggle {
+            display: none;
+            background: transparent;
+            border: none;
+            color: var(--text);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        @media (max-width: 1024px) {
+
+            .mobile-sidebar-toggle,
+            .mobile-properties-toggle {
+                display: block;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -320px;
+                top: 0;
+                bottom: 0;
+                z-index: 2000;
+                transition: left 0.3s ease;
+                box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .properties {
+                position: fixed;
+                right: -320px;
+                top: 0;
+                bottom: 0;
+                z-index: 2000;
+                transition: right 0.3s ease;
+                box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+            }
+
+            .properties.active {
+                right: 0;
+            }
+
+            .toolbar {
+                padding: 10px;
+                overflow-x: auto;
+                white-space: nowrap;
+                flex-wrap: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .toolbar .btn:not(.essential) {
+                display: none;
+            }
+
+            .logo {
+                font-size: 16px;
+                margin-right: 10px;
+                white-space: nowrap;
+            }
+
+            .canvas-area {
+                padding: 10px;
+            }
+
+            .canvas-wrapper {
+                transform-origin: center;
+                max-width: 100%;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .toolbar .divider {
+                display: none;
+            }
+
+            .size-inputs {
+                display: none;
+            }
+        }
     </style>
 </head>
 
 <body>
     <div class="app">
         <div class="toolbar">
-            <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()">
+            <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()" title="Toggle Sidebar">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="logo essential"><i class="fas fa-wand-magic-sparkles"></i> ULTRA AI Studio</div>
-            <button class="btn essential" onclick="addText()"><i class="fas fa-font"></i> Text</button>
+            <div class="logo essential"><i class="fas fa-wand-magic-sparkles"></i> AI Studio</div>
+            <button class="btn essential" onclick="addText()"><i class="fas fa-font"></i></button>
             <button class="btn essential" onclick="addShape('rectangle')"><i class="fas fa-square"></i></button>
-            <button class="btn" onclick="addShape('circle')"><i class="fas fa-circle"></i></button>
             <div class="divider"></div>
-            <button class="btn" onclick="deleteSelected()"><i class="fas fa-trash"></i></button>
-            <button class="btn" onclick="undo()"><i class="fas fa-undo"></i></button>
-            <button class="btn" onclick="redo()"><i class="fas fa-redo"></i></button>
-            <div class="divider"></div>
-            <div class="size-inputs">
-                <input type="number" id="canvasWidth" value="1080" placeholder="W">
-                <span>×</span>
-                <input type="number" id="canvasHeight" value="1080" placeholder="H">
-                <button class="btn" onclick="resizeCanvas()">Resize</button>
-            </div>
+            <button class="btn essential" onclick="saveDesign()"><i class="fas fa-save"></i></button>
+            <button class="btn btn-primary essential" onclick="showExportModal()"><i
+                    class="fas fa-download"></i></button>
             <div style="margin-left: auto;"></div>
-            <button class="btn" onclick="showSavedDesigns()"><i class="fas fa-folder-open"></i> Open</button>
-            <button class="btn essential" onclick="saveDesign()"><i class="fas fa-save"></i> Save</button>
-            <button class="btn btn-primary essential" onclick="showExportModal()"><i class="fas fa-download"></i>
-                Export</button>
+            <button class="mobile-properties-toggle" onclick="toggleMobileProperties()" title="Toggle Properties">
+                <i class="fas fa-cog"></i>
+            </button>
         </div>
         <div class="main">
             <!-- Left Sidebar -->
@@ -970,8 +1055,17 @@
             sidebar.classList.toggle('active');
             if (sidebar.classList.contains('active')) {
                 toggle.className = 'fas fa-times';
+                document.querySelector('.properties').classList.remove('active');
             } else {
                 toggle.className = 'fas fa-bars';
+            }
+        }
+
+        function toggleMobileProperties() {
+            const properties = document.querySelector('.properties');
+            properties.classList.toggle('active');
+            if (properties.classList.contains('active')) {
+                document.querySelector('.sidebar').classList.remove('active');
             }
         }
 

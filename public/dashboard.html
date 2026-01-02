@@ -201,6 +201,40 @@
             background: #667eea;
             border-radius: 4px;
         }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .header {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px;
+                gap: 15px;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+            .btn {
+                padding: 10px 16px;
+                font-size: 13px;
+                flex: 1;
+                justify-content: center;
+            }
+
+            .user-info h1 {
+                font-size: 24px;
+            }
+
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
 </head>
 

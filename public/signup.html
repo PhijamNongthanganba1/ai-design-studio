@@ -156,6 +156,21 @@
             color: #991b1b;
             border: 1px solid #ef4444;
         }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+                border-radius: 15px;
+            }
+
+            h1 {
+                font-size: 26px;
+            }
+
+            .logo i {
+                font-size: 40px;
+            }
+        }
     </style>
 </head>
 
@@ -196,7 +211,7 @@
         </form>
 
         <div class="link">
-            Already have an account? <a href="login.html">Sign In</a>
+            Already have an account? <a href="/login">Sign In</a>
         </div>
     </div>
 
@@ -206,6 +221,10 @@
             alert.className = `alert alert-${type}`;
             alert.textContent = message;
             alert.style.display = 'block';
+
+            // Ensure alert is visible on mobile
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
             setTimeout(() => {
                 alert.style.display = 'none';
             }, 5000);
