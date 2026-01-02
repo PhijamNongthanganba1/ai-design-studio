@@ -539,6 +539,10 @@
             .size-inputs {
                 display: none;
             }
+
+            .logo span {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -549,7 +553,7 @@
             <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()" title="Toggle Sidebar">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="logo essential"><i class="fas fa-wand-magic-sparkles"></i> AI Studio</div>
+            <div class="logo essential"><i class="fas fa-wand-magic-sparkles"></i> <span>AI Studio</span></div>
             <button class="btn essential" onclick="addText()"><i class="fas fa-font"></i></button>
             <button class="btn essential" onclick="addShape('rectangle')"><i class="fas fa-square"></i></button>
             <div class="divider"></div>
@@ -787,6 +791,27 @@
                 <div id="savedDesignsList"></div>
                 <div style="margin-top: 20px;">
                     <button class="btn btn-primary" style="width: 100%;" onclick="closeSavedModal()">Close</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Video Modal -->
+        <div id="aiVideoModal" class="modal">
+            <div class="modal-content">
+                <h3><i class="fas fa-video"></i> Create AI Talking Avatar</h3>
+                <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
+                    The selected image will come to life and speak your text.
+                </p>
+                <div class="ai-input-group">
+                    <label class="property-label">What should the avatar say?</label>
+                    <textarea id="aiVideoScript" class="ai-prompt"
+                        placeholder="E.g., Hello! Welcome to my presentation."></textarea>
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn" style="flex: 1;" onclick="closeAIVideoModal()">Cancel</button>
+                    <button class="btn btn-primary" style="flex: 1;" onclick="confirmAIVideo()">
+                        <i class="fas fa-magic"></i> Create Video
+                    </button>
                 </div>
             </div>
         </div>
@@ -1324,24 +1349,32 @@
             alert('🔧 Smart Erase\n\nComing soon! Will use Stability AI Inpainting.');
         }
         async function createAIVideo() {
-            console.log('[AI Video] Function triggered');
             const active = canvas.getActiveObject();
             if (!active || active.type !== 'image') {
                 alert('⚠️ Please select an IMAGE first!');
                 return;
             }
+            document.getElementById('aiVideoModal').style.display = 'flex';
+        }
 
-            const scriptText = prompt('Enter text for AI avatar to speak:', 'Hello! I am an AI avatar.');
-            if (!scriptText) return;
+        function closeAIVideoModal() {
+            document.getElementById('aiVideoModal').style.display = 'none';
+        }
 
+        async function confirmAIVideo() {
+            const scriptText = document.getElementById('aiVideoScript').value.trim();
+            if (!scriptText) {
+                alert('Please enter some text for the avatar to speak!');
+                return;
+            }
+
+            closeAIVideoModal();
+            const active = canvas.getActiveObject();
             const statusDiv = document.getElementById('aiStudioStatus');
             statusDiv.innerHTML = '<div class="loading"></div> Generating AI Video...<br><small>This may take up to 1 minute.</small>';
 
             try {
-                console.log('[AI Video] Preparing image data...');
                 const imageUrl = active.toDataURL({ format: 'png', quality: 0.7 });
-
-                console.log('[AI Video] Sending request to backend...');
                 const response = await fetch(`${API_URL}/api/create-video`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
