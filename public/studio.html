@@ -59,6 +59,8 @@
             background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-right: 20px;
+            text-decoration: none;
+            cursor: pointer;
         }
 
         .btn {
@@ -553,7 +555,13 @@
             <button class="mobile-sidebar-toggle" onclick="toggleMobileSidebar()" title="Toggle Sidebar">
                 <i class="fas fa-bars"></i>
             </button>
-            <div class="logo essential"><i class="fas fa-wand-magic-sparkles"></i> <span>AI Studio</span></div>
+            <a href="/dashboard" class="logo essential" title="Back to Dashboard">
+                <i class="fas fa-wand-magic-sparkles"></i> <span>AI Studio</span>
+            </a>
+            <button class="btn essential" onclick="window.location.href='/dashboard'" title="Home">
+                <i class="fas fa-home"></i>
+            </button>
+            <div class="divider"></div>
             <button class="btn essential" onclick="addText()"><i class="fas fa-font"></i></button>
             <button class="btn essential" onclick="addShape('rectangle')"><i class="fas fa-square"></i></button>
             <div class="divider"></div>
