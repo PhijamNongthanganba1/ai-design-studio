@@ -482,6 +482,8 @@
                 left: -320px;
                 top: 0;
                 bottom: 0;
+                width: 85%;
+                max-width: 320px;
                 z-index: 2000;
                 transition: left 0.3s ease;
                 box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
@@ -496,6 +498,8 @@
                 right: -320px;
                 top: 0;
                 bottom: 0;
+                width: 85%;
+                max-width: 320px;
                 z-index: 2000;
                 transition: right 0.3s ease;
                 box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
@@ -507,10 +511,15 @@
 
             .toolbar {
                 padding: 10px;
+                gap: 10px;
                 overflow-x: auto;
+                justify-content: flex-start;
                 white-space: nowrap;
-                flex-wrap: nowrap;
                 -webkit-overflow-scrolling: touch;
+            }
+
+            .toolbar::-webkit-scrollbar {
+                display: none;
             }
 
             .toolbar .btn:not(.essential) {
@@ -518,9 +527,33 @@
             }
 
             .logo {
-                font-size: 16px;
                 margin-right: 10px;
+                font-size: 14px;
                 white-space: nowrap;
+            }
+
+            .logo i {
+                font-size: 16px;
+            }
+
+            .btn {
+                padding: 8px 12px;
+                font-size: 12px;
+                flex-shrink: 0;
+            }
+
+            .sidebar-tabs {
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+
+            .sidebar-tab {
+                min-width: 50px;
+                padding: 10px 5px;
+            }
+
+            .template-grid {
+                grid-template-columns: 1fr;
             }
 
             .canvas-area {
@@ -534,6 +567,10 @@
         }
 
         @media (max-width: 480px) {
+            .toolbar {
+                padding: 8px 5px;
+            }
+
             .toolbar .divider {
                 display: none;
             }
@@ -545,6 +582,27 @@
             .logo span {
                 display: none;
             }
+
+            .logo {
+                margin: 0 5px;
+            }
+        }
+
+        /* Backdrop for mobile panels */
+        .panel-backdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1500;
+            backdrop-filter: blur(3px);
+        }
+
+        .panel-backdrop.active {
+            display: block;
         }
     </style>
 </head>
@@ -823,6 +881,7 @@
                 </div>
             </div>
         </div>
+        <div class="panel-backdrop" id="panelBackdrop" onclick="closeAllPanels()"></div>
     </div>
 
     <script>
@@ -1079,28 +1138,72 @@
                     selectedStyle = this.dataset.style;
                 });
             });
+
+            // Mobile auto-scale
+            setTimeout(autoScaleCanvas, 500);
         });
 
         // Mobile Sidebar Toggle
         function toggleMobileSidebar() {
             const sidebar = document.querySelector('.sidebar');
             const toggle = document.querySelector('.mobile-sidebar-toggle i');
+            const backdrop = document.getElementById('panelBackdrop');
+
             sidebar.classList.toggle('active');
             if (sidebar.classList.contains('active')) {
                 toggle.className = 'fas fa-times';
                 document.querySelector('.properties').classList.remove('active');
+                backdrop.classList.add('active');
             } else {
                 toggle.className = 'fas fa-bars';
+                backdrop.classList.remove('active');
             }
         }
 
         function toggleMobileProperties() {
             const properties = document.querySelector('.properties');
+            const backdrop = document.getElementById('panelBackdrop');
+
             properties.classList.toggle('active');
             if (properties.classList.contains('active')) {
                 document.querySelector('.sidebar').classList.remove('active');
+                backdrop.classList.add('active');
+            } else {
+                backdrop.classList.remove('active');
             }
         }
+
+        function closeAllPanels() {
+            document.querySelector('.sidebar').classList.remove('active');
+            document.querySelector('.properties').classList.remove('active');
+            document.getElementById('panelBackdrop').classList.remove('active');
+            const sideToggle = document.querySelector('.mobile-sidebar-toggle i');
+            if (sideToggle) sideToggle.className = 'fas fa-bars';
+        }
+
+        // AUTO-SCALE CANVAS FOR MOBILE
+        function autoScaleCanvas() {
+            if (!canvas) return;
+            const container = document.querySelector('.canvas-area');
+            const padding = window.innerWidth < 768 ? 20 : 60;
+            const availableWidth = container.clientWidth - padding;
+            const availableHeight = container.clientHeight - padding;
+
+            const scaleX = availableWidth / canvas.width;
+            const scaleY = availableHeight / canvas.height;
+            const scale = Math.min(scaleX, scaleY, 0.9); // Max 90% zoom on mobile to keep some space
+
+            canvas.setZoom(scale);
+
+            // Center the canvas
+            const vpt = canvas.viewportTransform;
+            vpt[4] = (container.clientWidth - canvas.width * scale) / 2;
+            vpt[5] = (container.clientHeight - canvas.height * scale) / 2;
+
+            canvas.requestRenderAll();
+        }
+
+        window.addEventListener('resize', autoScaleCanvas);
 
         // Basic Canvas Functions
         function addText() {
@@ -1178,6 +1281,7 @@
             const h = parseInt(document.getElementById('canvasHeight').value);
             if (w > 0 && h > 0) {
                 canvas.setDimensions({ width: w, height: h });
+                autoScaleCanvas();
                 canvas.renderAll();
                 saveState();
             }
@@ -1195,7 +1299,7 @@
                     canvas.setBackgroundColor('#667eea', canvas.renderAll.bind(canvas));
                     break;
                 case 'poster':
-                    canvas.setDimensions({ width: 794, height: 1123 });
+                    canvas.setDimensions({ width: 1080, height: 1527 });
                     canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
                     break;
                 case 'flyer':
@@ -1203,6 +1307,7 @@
                     canvas.setBackgroundColor('#ffffff', canvas.renderAll.bind(canvas));
                     break;
             }
+            autoScaleCanvas();
             document.getElementById('canvasWidth').value = canvas.width;
             document.getElementById('canvasHeight').value = canvas.height;
             saveState();
