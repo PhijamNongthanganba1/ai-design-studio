@@ -478,35 +478,57 @@
             }
 
             .sidebar {
+                display: none;
                 position: fixed;
-                left: -320px;
+                left: 0;
                 top: 0;
                 bottom: 0;
                 width: 85%;
                 max-width: 320px;
                 z-index: 2000;
-                transition: left 0.3s ease;
+                animation: slideInLeft 0.3s ease;
                 box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
             }
 
             .sidebar.active {
-                left: 0;
+                display: flex;
             }
 
             .properties {
+                display: none;
                 position: fixed;
-                right: -320px;
+                right: 0;
                 top: 0;
                 bottom: 0;
                 width: 85%;
                 max-width: 320px;
                 z-index: 2000;
-                transition: right 0.3s ease;
+                animation: slideInRight 0.3s ease;
                 box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
             }
 
             .properties.active {
-                right: 0;
+                display: block;
+            }
+
+            @keyframes slideInLeft {
+                from {
+                    transform: translateX(-100%);
+                }
+
+                to {
+                    transform: translateX(0);
+                }
+            }
+
+            @keyframes slideInRight {
+                from {
+                    transform: translateX(100%);
+                }
+
+                to {
+                    transform: translateX(0);
+                }
             }
 
             .toolbar {
