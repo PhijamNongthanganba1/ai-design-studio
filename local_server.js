@@ -50,7 +50,7 @@ if (fs.existsSync(apiDir)) {
                 }
             });
 
-            // Some might be GET (like /api/health)
+            // Some might be GET
             if (file === 'health.js') {
                 app.get(routeName, async (req, res) => {
                     try { await handler(req, res); } catch (err) { res.status(500).send('Error'); }
@@ -58,23 +58,14 @@ if (fs.existsSync(apiDir)) {
             }
         }
     });
-    console.log(`🚀 Mounted APIs from /api folder`);
+    console.log(`✅ Mounted APIs from /api folder`);
 }
 
-// 2. Vercel-style Rewrites
-const rewrites = [
-    { source: '/login', dest: 'public/login.html' },
-    { source: '/signup', dest: 'public/signup.html' },
-    { source: '/dashboard', dest: 'public/dashboard.html' },
-    { source: '/app', dest: 'public/studio.html' }
-];
+// 2. Custom Rewrites (MUST be before static)
+app.get('/app', (req, res) => res.redirect('/studio'));
 
-rewrites.forEach(rw => {
-    app.get(rw.source, (req, res) => res.sendFile(path.join(__dirname, rw.dest)));
-});
-
-// 3. Static Files (Public folder)
-app.use(express.static(path.join(__dirname, 'public')));
+// 3. Static Files with HTML extensions
+app.use(express.static(path.join(__dirname, 'public'), { extensions: ['html'] }));
 
 // 4. Fallback Routing
 app.use((req, res) => {
@@ -87,9 +78,6 @@ app.use((req, res) => {
 
 app.listen(PORT, () => {
     console.log(`\n✅ Server is running!`);
-    console.log(`🔗 Local URL: http://localhost:${PORT}`);
-    console.log(`📂 Static files: Serving from root`);
-    console.log(`🛠️  API routes: Active at /api/*`);
+    console.log(`🔗 Local URL: http://localhost:3000`);
     console.log(`\nPress Ctrl+C to stop the server.\n`);
 });
-

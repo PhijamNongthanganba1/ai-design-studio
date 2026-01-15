@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚀 ULTRA AI Design Studio Pro - Complete Edition</title>
+    <title>Nongai AI Design Studio Pro</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.0/fabric.min.js"></script>
@@ -52,15 +52,28 @@
         }
 
         .logo {
-            font-size: 20px;
+            font-size: 24px;
             font-weight: 800;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #7c3aed 0%, #10b981 100%);
             -webkit-background-clip: text;
             background-clip: text;
             -webkit-text-fill-color: transparent;
             margin-right: 20px;
             text-decoration: none;
             cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .logo-icon {
+            font-family: 'Inter', sans-serif;
+            font-style: italic;
+            font-weight: 900;
+            font-size: 28px;
+            color: #7c3aed;
+            -webkit-text-fill-color: initial;
+            background: none;
         }
 
         .btn {
@@ -558,7 +571,7 @@
                 font-size: 16px !important;
             }
 
-            .logo span {
+            .logo span.logo-text {
                 display: none !important;
             }
 
@@ -605,7 +618,7 @@
                 display: none;
             }
 
-            .logo span {
+            .logo span.logo-text {
                 display: none;
             }
 
@@ -640,7 +653,7 @@
                 <i class="fas fa-bars"></i>
             </button>
             <a href="/dashboard" class="logo essential" title="Back to Dashboard">
-                <i class="fas fa-wand-magic-sparkles"></i> <span>AI Studio</span>
+                <span class="logo-icon">N</span> <span class="logo-text">Nongai Studio</span>
             </a>
             <button class="btn essential" onclick="window.location.href='/dashboard'" title="Home">
                 <i class="fas fa-home"></i>
