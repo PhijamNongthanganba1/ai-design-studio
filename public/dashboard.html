@@ -235,6 +235,38 @@
                 grid-template-columns: 1fr;
             }
         }
+
+        .footer {
+            margin-top: 60px;
+            text-align: center;
+            padding: 40px 0;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .copyright {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 13px;
+        }
     </style>
 </head>
 
@@ -307,6 +339,16 @@
                 </button>
             </div>
         </div>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <div class="footer-links">
+                <a href="/about">About Us</a>
+                <a href="/privacy">Privacy Policy</a>
+                <a href="/contact">Contact Us</a>
+            </div>
+            <p class="copyright">&copy; 2026 Nongai Studio. All rights reserved.</p>
+        </footer>
 
         <!-- Recent Designs -->
         <div class="card">
