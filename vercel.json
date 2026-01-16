@@ -28,6 +28,18 @@
         {
             "source": "/app",
             "destination": "/public/studio.html"
+        },
+        {
+            "source": "/about",
+            "destination": "/public/about.html"
+        },
+        {
+            "source": "/privacy",
+            "destination": "/public/privacy.html"
+        },
+        {
+            "source": "/contact",
+            "destination": "/public/contact.html"
         }
     ]
 }
